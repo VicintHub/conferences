@@ -36,27 +36,37 @@ export function Countdown({ target = EVENT_START, variant = "card" }: Props) {
     [variant === "hero" ? "Seconds" : "Sec", t ? pad(t.seconds) : "--"],
   ] as const;
 
+  const hero = variant === "hero";
+
   return (
     <div
       role="timer"
       aria-label="Countdown to the conference"
-      className={cn("flex", variant === "hero" ? "justify-center gap-5" : "gap-5")}
+      className={cn(hero ? "grid w-full grid-cols-4 gap-2 md:flex md:w-auto md:justify-center md:gap-3.5" : "flex gap-5")}
     >
       {units.map(([label, value]) => (
         <div
           key={label}
           className={cn(
             "flex flex-col text-white",
-            variant === "hero" ? "size-[120px] items-center justify-center rounded-[10px] border border-white/20" : "items-start",
+            hero
+              ? "items-center gap-1 rounded-[10px] border border-white/20 bg-cobalt-950/40 py-3 md:w-[120px] md:py-[18px]"
+              : "items-start",
           )}
         >
-          <span className={cn("font-display font-bold leading-none tabular-nums", variant === "hero" ? "text-[56px]" : "text-[44px]")}>
+          <span
+            className={cn(
+              "font-display leading-none tabular-nums",
+              hero ? "text-[30px] font-semibold md:text-[52px]" : "text-[44px] font-bold",
+            )}
+          >
             {value}
           </span>
           <span
             className={cn(
-              "font-semibold uppercase tracking-[0.12em] text-cobalt-300",
-              variant === "hero" ? "mt-2 text-xs" : "mt-1 text-[10px]",
+              hero
+                ? "text-[11px] font-medium text-cobalt-200 md:text-xs"
+                : "mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cobalt-300",
             )}
           >
             {label}

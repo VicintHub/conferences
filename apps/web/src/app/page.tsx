@@ -1,14 +1,33 @@
-import { Button } from "@/components/ui";
+import { About } from "@/components/landing/About";
+import { Accommodation } from "@/components/landing/Accommodation";
+import { Footer } from "@/components/landing/Footer";
+import { Gallery } from "@/components/landing/Gallery";
+import { Hero } from "@/components/landing/Hero";
+import { Hosts } from "@/components/landing/Hosts";
+import { Ministering } from "@/components/landing/Ministering";
+import { Partner } from "@/components/landing/Partner";
+import { Registration } from "@/components/landing/Registration";
+import { Sessions } from "@/components/landing/Sessions";
+import { Shop } from "@/components/landing/Shop";
+import { Testimonies } from "@/components/landing/Testimonies";
+import { Why } from "@/components/landing/Why";
 
-// Placeholder until the public landing page ships (build step 2).
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-cobalt-950 px-5 text-center text-white">
-      <p className="text-sm font-semibold uppercase tracking-[0.3em]">See you on</p>
-      <h1 className="font-display-caps text-[64px] md:text-[128px]">19th – 24th Jan, 2027</h1>
-      <Button href="/register" variant="accent" display size="lg">
-        Register Now
-      </Button>
+    <main>
+      <Hero />
+      <About />
+      <Hosts />
+      <Why />
+      <Ministering />
+      <Sessions />
+      <Registration />
+      <Accommodation />
+      <Shop />
+      <Gallery />
+      <Testimonies />
+      <Partner />
+      <Footer />
     </main>
   );
 }
