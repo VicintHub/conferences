@@ -50,6 +50,16 @@ class TeamController extends Controller
         return (new TeamResource($team->load('members.attendee.registration', 'members.team')))->response()->setStatusCode(201);
     }
 
+    /** Only the leader renames the team. The share code stays the same, so existing links keep working. */
+    public function update(Request $request, string $kind): TeamResource
+    {
+        $data = $request->validate(['name' => ['required', 'string', 'min:2', 'max:120']]);
+        $team = Team::where('kind', TeamKind::from($kind)->value)->where('leader_id', $request->user()->id)->firstOrFail();
+        $team->update(['name' => trim($data['name'])]);
+
+        return new TeamResource($team->load('members.attendee.registration', 'members.team'));
+    }
+
     /** What the share link shows before someone joins: just enough to recognise the team. */
     public function preview(string $code): JsonResponse
     {

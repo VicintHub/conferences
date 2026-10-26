@@ -51,6 +51,16 @@ class TeamsApiTest extends TestCase
         $this->assertStringContainsString('/app/team?join=CLA-', $res->json('data.share_url'));
     }
 
+    public function test_the_leader_can_rename_the_team_and_the_code_stays(): void
+    {
+        $leader = $this->attendee();
+        $code = $this->as($leader)->postJson('/api/v1/me/teams/church', [])->json('data.code');
+        $this->as($leader)->patchJson('/api/v1/me/teams/church', ['name' => 'CLA Ibadan Central'])->assertOk()
+            ->assertJsonPath('data.name', 'CLA Ibadan Central')->assertJsonPath('data.code', $code);
+        $this->as($leader)->patchJson('/api/v1/me/teams/church', ['name' => ''])->assertUnprocessable();
+        $this->as($this->attendee('x@example.com'))->patchJson('/api/v1/me/teams/church', ['name' => 'Mine now'])->assertNotFound();
+    }
+
     public function test_show_reports_no_team_and_whether_one_can_be_created(): void
     {
         $this->as($this->attendee())->getJson('/api/v1/me/teams/church')

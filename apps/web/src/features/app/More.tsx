@@ -71,6 +71,7 @@ export function More() {
       <Group
         items={[
           { i: "T", t: "My team", href: "/app/team" },
+          { i: "V", t: "Apply: VIP, speaker, vendor, media", href: "/app/apply" },
           { i: "A", t: "Attending card", href: "/app/attending-card" },
           { i: "B", t: "Programme booklet", href: "/app/booklet", value: "PDF" },
         ]}

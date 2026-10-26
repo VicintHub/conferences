@@ -5,6 +5,7 @@ export type Me = {
   days: string[];
   needs_accommodation: boolean;
   status: string;
+  minister_verified: boolean;
   badge: { printed_at: string } | null;
   access: { key: string; label: string; used: boolean }[];
   attendee: { full_name: string; first_name: string; email: string; church: string | null };

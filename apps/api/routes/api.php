@@ -62,6 +62,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/me/feedback', [FeedbackController::class, 'mine']);
         Route::get('/me/teams/{kind}', [TeamController::class, 'show'])->whereIn('kind', ['church', 'minister']);
         Route::post('/me/teams/{kind}', [TeamController::class, 'store'])->whereIn('kind', ['church', 'minister']);
+        Route::patch('/me/teams/{kind}', [TeamController::class, 'update'])->whereIn('kind', ['church', 'minister']);
         Route::post('/me/teams/{kind}/members', [TeamMemberController::class, 'store'])->whereIn('kind', ['church', 'minister'])->middleware('throttle:30,1');
         Route::post('/me/teams/church/members/import', [TeamMemberController::class, 'import'])->middleware('throttle:6,1');
         Route::delete('/me/teams/{kind}/members/{member}', [TeamMemberController::class, 'destroy'])->whereIn('kind', ['church', 'minister'])->whereNumber('member');
