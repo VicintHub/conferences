@@ -67,7 +67,7 @@ class RegistrationApiTest extends TestCase
             ->assertJsonPath('meta.downgraded_to_online', false);
         $this->assertMatchesRegularExpression('/^JC27-DLG-\d{5}$/', $res->json('data.claim_code'));
 
-        $this->withToken($res->json('meta.token'))->getJson('/api/v1/me')->assertOk()->assertJsonPath('email', self::EMAIL);
+        $this->withToken($res->json('meta.token'))->getJson('/api/v1/me')->assertOk()->assertJsonPath('data.attendee.email', self::EMAIL);
         $this->getJson('/api/v1/capacity')->assertJsonPath('data.onsite.taken', 1);
     }
 

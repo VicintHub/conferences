@@ -22,6 +22,7 @@ class Registration extends Model
             'days' => 'array',
             'needs_accommodation' => 'boolean',
             'consented_at' => 'datetime',
+            'badge_printed_at' => 'datetime',
         ];
     }
 

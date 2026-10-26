@@ -12,6 +12,11 @@ class RegistrationException extends RuntimeException
         parent::__construct($message);
     }
 
+    public static function onsiteFull(): self
+    {
+        return new self('Onsite places are full.', 409, 'onsite_full');
+    }
+
     public static function invalidCode(): self
     {
         return new self('That code or link is incorrect or has expired.', 422, 'invalid_otp');
