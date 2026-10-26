@@ -7,6 +7,8 @@ return [
     'ends_at' => env('CONFERENCE_ENDS_AT', '2027-01-24T23:59:00+01:00'),
     'venue' => 'Leadership & Missions Conference Centre, Olororo, Ojoo, Ibadan, Nigeria',
     'onsite_capacity' => (int) env('CONFERENCE_ONSITE_CAPACITY', 2500),
+    'team_max' => (int) env('CONFERENCE_TEAM_MAX', 50),
+    'minister_aides_max' => 3,
     // Headline for each day, shown in "The week" on the desktop dashboard.
     'day_titles' => [
         '2027-01-19' => 'Evening of Worship',
