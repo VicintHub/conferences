@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(30)->by('otp-ip:'.$request->ip()),
         ]);
 
+        // Testimony uploads: a handful per hour per person (or IP for guests).
+        RateLimiter::for('testimonies', fn (Request $request) => Limit::perHour(5)->by('testimony:'.($request->user('sanctum')?->id ?? $request->ip())));
+
         RateLimiter::for('verify', fn (Request $request) => Limit::perMinute(10)->by('verify-ip:'.$request->ip()));
     }
 }
