@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\FeedbackController;
 use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\ProgrammeController;
+use App\Http\Controllers\Api\V1\PublicityController;
 use App\Http\Controllers\Api\V1\RegistrationController;
 use App\Http\Controllers\Api\V1\SpeakerController;
 use App\Http\Controllers\Api\V1\SurveyController;
@@ -20,6 +21,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/programme', ProgrammeController::class);
     Route::get('/speakers', [SpeakerController::class, 'index']);
     Route::get('/speakers/{slug}', [SpeakerController::class, 'show']);
+    Route::get('/publicity', [PublicityController::class, 'index']);
+    Route::get('/publicity/{slug}', [PublicityController::class, 'show']);
+    Route::post('/publicity/{slug}/track', [PublicityController::class, 'track'])->middleware('throttle:120,1');
     Route::get('/testimonies', [TestimonyController::class, 'index']);
     Route::post('/testimonies', [TestimonyController::class, 'store'])->middleware('throttle:testimonies');
 
