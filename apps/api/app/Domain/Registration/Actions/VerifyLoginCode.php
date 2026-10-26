@@ -42,7 +42,7 @@ class VerifyLoginCode
 
     private function live($query): ?OtpCode
     {
-        return $query->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->first();
+        return $query->where('audience', 'attendee')->whereNull('consumed_at')->where('expires_at', '>', now())->latest('id')->first();
     }
 
     private function consume(OtpCode $otp): Attendee

@@ -16,3 +16,5 @@ Schedule::command('shop:expire-orders')->everyFiveMinutes()->withoutOverlapping(
 Schedule::command('live:send-reminders')->everyMinute()->withoutOverlapping();
 // Heartbeat rows are only meaningful for a minute or two; keep the table small.
 Schedule::call(fn () => DB::table('live_viewers')->where('seen_at', '<', now()->subDay())->delete())->daily();
+// Send scheduled broadcasts when their time comes.
+Schedule::command('broadcasts:dispatch')->everyMinute()->withoutOverlapping();
