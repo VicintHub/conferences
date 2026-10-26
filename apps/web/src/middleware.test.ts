@@ -13,7 +13,29 @@ describe("app route guard", () => {
   it("lets signed-in visitors through", () => {
     expect(middleware(req("/app", "jc27_token=abc")).headers.get("location")).toBeNull();
   });
-  it("only guards the app", () => {
-    expect(config.matcher).toEqual(["/app/:path*"]);
+  it("guards the app and the console, and nothing else", () => {
+    expect(config.matcher).toEqual(["/app/:path*", "/admin", "/admin/:path*"]);
+  });
+});
+
+describe("admin console guard", () => {
+  it("sends signed-out staff to the staff sign-in, remembering the page", () => {
+    const res = middleware(req("/admin/approvals"));
+    expect(res.headers.get("location")).toBe("http://localhost/admin/login?next=%2Fadmin%2Fapprovals");
+    expect(middleware(req("/admin")).headers.get("location")).toBe("http://localhost/admin/login");
+  });
+
+  it("needs the staff cookie: an attendee's cookie is not enough", () => {
+    expect(middleware(req("/admin", "jc27_token=abc")).headers.get("location")).toContain("/admin/login");
+    expect(middleware(req("/admin/registrants", "jc27_staff=abc")).headers.get("location")).toBeNull();
+  });
+
+  it("leaves the staff sign-in screens open", () => {
+    expect(middleware(req("/admin/login")).headers.get("location")).toBeNull();
+    expect(middleware(req("/admin/verify")).headers.get("location")).toBeNull();
+  });
+
+  it("does not let a staff cookie open the attendee app", () => {
+    expect(middleware(req("/app", "jc27_staff=abc")).headers.get("location")).toContain("/login");
   });
 });
