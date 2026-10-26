@@ -18,7 +18,7 @@ class Attendee extends Authenticatable
     {
         return [
             'age_band' => AgeBand::class,
-            'phone_verified_at' => 'datetime',
+            'email_verified_at' => 'datetime',
         ];
     }
 

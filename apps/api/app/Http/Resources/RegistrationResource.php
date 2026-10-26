@@ -21,7 +21,7 @@ class RegistrationResource extends JsonResource
             'attendee' => [
                 'full_name' => $this->attendee->full_name,
                 'first_name' => explode(' ', trim($this->attendee->full_name))[0],
-                'phone' => $this->attendee->phone,
+                'email' => $this->attendee->email,
             ],
         ];
     }

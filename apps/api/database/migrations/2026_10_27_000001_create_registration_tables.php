@@ -11,12 +11,12 @@ return new class extends Migration
         Schema::create('attendees', function (Blueprint $table) {
             $table->id();
             $table->string('full_name');
-            $table->string('phone', 20)->unique();
-            $table->string('email')->nullable();
+            $table->string('email')->unique();
+            $table->string('phone', 20)->nullable();
             $table->string('church')->nullable();
             $table->string('location')->nullable();
             $table->string('age_band', 8);
-            $table->timestamp('phone_verified_at')->nullable();
+            $table->timestamp('email_verified_at')->nullable();
             $table->timestamps();
         });
 
@@ -27,17 +27,20 @@ return new class extends Migration
             $table->string('mode', 8);
             $table->json('days');
             $table->boolean('needs_accommodation')->default(false);
-            $table->string('status', 16)->default('confirmed');
+            // pending_verification until the email is confirmed, then confirmed.
+            $table->string('status', 24)->default('pending_verification');
             $table->string('claim_code', 20)->unique();
             $table->timestamp('consented_at')->nullable();
             $table->timestamps();
             $table->index(['mode', 'status']);
         });
 
+        // One row per emailed sign-in: the 6-digit code and the magic link are two ways to consume the same row.
         Schema::create('otp_codes', function (Blueprint $table) {
             $table->id();
-            $table->string('phone', 20)->index();
+            $table->string('email')->index();
             $table->string('code_hash', 64);
+            $table->string('link_hash', 64)->unique();
             $table->unsignedTinyInteger('attempts')->default(0);
             $table->timestamp('expires_at');
             $table->timestamp('consumed_at')->nullable();
