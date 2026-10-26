@@ -6,6 +6,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { TabBar } from "@/components/ui";
+import { SessionFeedbackSheet } from "@/features/feedback/SessionFeedbackSheet";
+import { useFeedbackPrompt } from "@/features/feedback/useFeedbackPrompt";
 import { categoryLabel } from "./types";
 import { activeTab, sidebarItems } from "./nav";
 import { useMe, useOnline } from "./queries";
@@ -17,6 +19,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const online = useOnline();
   const { me, stale } = useMe();
+  const prompt = useFeedbackPrompt();
 
   // Once signed in and online, visit the core screens so the service worker has them for offline start-up.
   const signedIn = !!me && !stale;
@@ -78,9 +81,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
         <div className="flex min-h-0 flex-1 flex-col lg:overflow-y-auto">{children}</div>
-        <div className="lg:hidden">
-          <TabBar active={activeTab(pathname)} />
-        </div>
+        {/* Full-screen flows (e.g. sharing a testimony) hide the tab bar, as in the designs. */}
+        {!pathname.endsWith("/share") && (
+          <div className="lg:hidden">
+            <TabBar active={activeTab(pathname)} />
+          </div>
+        )}
+        <SessionFeedbackSheet session={prompt.session} highlights={prompt.highlights} onClose={prompt.dismiss} />
       </div>
     </div>
   );

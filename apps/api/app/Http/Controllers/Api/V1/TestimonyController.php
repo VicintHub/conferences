@@ -31,7 +31,7 @@ class TestimonyController extends Controller
         return response()->json([
             'data' => $page->getCollection()->map(fn ($t) => (new TestimonyResource($t, $amened))->resolve())->values(),
             'featured' => $featured ? (new TestimonyResource($featured, $this->amenedBy($request, collect([$featured->id]))))->resolve() : null,
-            'meta' => ['next_cursor' => $page->nextCursor()?->encode(), 'tags' => config('testimonies.tags')],
+            'meta' => ['next_cursor' => $page->nextCursor()?->encode(), 'tags' => config('testimonies.tags'), 'filters' => config('testimonies.filters')],
         ]);
     }
 

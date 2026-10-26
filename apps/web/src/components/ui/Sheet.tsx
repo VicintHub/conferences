@@ -22,6 +22,8 @@ export function Sheet({ open, onOpenChange, title, description, side = "bottom",
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[1000] animate-fade-in bg-[var(--backdrop)]" />
         <Dialog.Content
+          // Without a description, opt out of aria-describedby instead of repeating the title for screen readers.
+          {...(description ? {} : { "aria-describedby": undefined })}
           className={cn(
             "fixed z-[1001] bg-white shadow-xl focus:outline-none",
             side === "bottom"
@@ -32,11 +34,7 @@ export function Sheet({ open, onOpenChange, title, description, side = "bottom",
           {side === "bottom" && <div aria-hidden className="mx-auto mb-4 h-1 w-10 rounded-full bg-ink-200" />}
           {side === "bottom" && icon && <div className="mb-4">{icon}</div>}
           <Dialog.Title className={side === "bottom" ? "text-[22px] font-bold text-cobalt-900" : "sr-only"}>{title}</Dialog.Title>
-          {description ? (
-            <Dialog.Description className="mt-1 text-[15px] text-ink-500">{description}</Dialog.Description>
-          ) : (
-            <Dialog.Description className="sr-only">{title}</Dialog.Description>
-          )}
+          {description ? <Dialog.Description className="mt-1 text-[15px] text-ink-500">{description}</Dialog.Description> : null}
           {children}
           {side === "right" && (
             <Dialog.Close
