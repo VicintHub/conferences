@@ -14,8 +14,8 @@ const pad = (n: number) => String(n).padStart(2, "0");
 
 type Props = {
   target?: string;
-  /** "card" = compact app card on cobalt; "hero" = large boxed desktop hero. */
-  variant?: "card" | "hero";
+  /** hero = boxed landing hero; card = compact app card on cobalt; panel = large desktop dashboard card. */
+  variant?: "card" | "hero" | "panel";
 };
 
 export function Countdown({ target = EVENT_START, variant = "card" }: Props) {
@@ -29,44 +29,47 @@ export function Countdown({ target = EVENT_START, variant = "card" }: Props) {
   }, []);
 
   const t = now === null ? null : remaining(end, now);
-  const units = [
-    ["Days", t ? (variant === "hero" ? pad(t.days) : String(t.days)) : "--"],
-    [variant === "hero" ? "Hours" : "Hrs", t ? pad(t.hours) : "--"],
-    [variant === "hero" ? "Minutes" : "Min", t ? pad(t.minutes) : "--"],
-    [variant === "hero" ? "Seconds" : "Sec", t ? pad(t.seconds) : "--"],
-  ] as const;
-
   const hero = variant === "hero";
+  const units = [
+    [hero ? "Days" : "DAYS", t ? (hero ? pad(t.days) : String(t.days)) : "--"],
+    [hero ? "Hours" : "HRS", t ? pad(t.hours) : "--"],
+    [hero ? "Minutes" : "MIN", t ? pad(t.minutes) : "--"],
+    [hero ? "Seconds" : "SEC", t ? pad(t.seconds) : "--"],
+  ] as const;
 
   return (
     <div
       role="timer"
       aria-label="Countdown to the conference"
-      className={cn(hero ? "grid w-full grid-cols-4 gap-2 md:flex md:w-auto md:justify-center md:gap-3.5" : "flex gap-5")}
+      className={cn(
+        hero && "grid w-full grid-cols-4 gap-2 md:flex md:w-auto md:justify-center md:gap-3.5",
+        variant === "card" && "flex items-end gap-[18px]",
+        variant === "panel" && "flex gap-7",
+      )}
     >
       {units.map(([label, value]) => (
         <div
           key={label}
           className={cn(
             "flex flex-col text-white",
-            hero
-              ? "items-center gap-1 rounded-[10px] border border-white/20 bg-cobalt-950/40 py-3 md:w-[120px] md:py-[18px]"
-              : "items-start",
+            hero && "items-center gap-1 rounded-[10px] border border-white/20 bg-cobalt-950/40 py-3 md:w-[120px] md:py-[18px]",
           )}
         >
           <span
             className={cn(
-              "font-display leading-none tabular-nums",
-              hero ? "text-[30px] font-semibold md:text-[52px]" : "text-[44px] font-bold",
+              "font-display font-semibold tabular-nums",
+              hero && "text-[30px] leading-none md:text-[52px]",
+              variant === "card" && "text-[40px] leading-[0.95]",
+              variant === "panel" && "text-[64px] leading-[0.9]",
             )}
           >
             {value}
           </span>
           <span
             className={cn(
-              hero
-                ? "text-[11px] font-medium text-cobalt-200 md:text-xs"
-                : "mt-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-cobalt-300",
+              hero && "text-[11px] font-medium text-cobalt-200 md:text-xs",
+              variant === "card" && "text-[9px] font-medium leading-[1.8] tracking-[0.1em] text-cobalt-300",
+              variant === "panel" && "text-[10px] font-medium leading-[2] tracking-[0.12em] text-cobalt-300",
             )}
           >
             {label}

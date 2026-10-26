@@ -14,6 +14,7 @@ class ProgrammeController extends Controller
         $days = ProgrammeSession::orderBy('starts_at')->get()->groupBy(fn ($s) => $s->day->toDateString())
             ->map(fn ($sessions, $day) => [
                 'date' => $day,
+                'title' => config("conference.day_titles.{$day}"),
                 'sessions' => $sessions->map(fn ($s) => [
                     'id' => $s->id,
                     'title' => $s->title,

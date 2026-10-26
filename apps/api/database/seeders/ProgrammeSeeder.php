@@ -37,8 +37,8 @@ class ProgrammeSeeder extends Seeder
             foreach ($sessions as [$start, $end, $title, $subtitle, $kind]) {
                 ProgrammeSession::create([
                     'day' => $day,
-                    'starts_at' => Carbon::parse("{$day} {$start}", $tz),
-                    'ends_at' => Carbon::parse("{$day} {$end}", $tz),
+                    'starts_at' => Carbon::parse("{$day} {$start}", $tz)->setTimezone(config('app.timezone')),
+                    'ends_at' => Carbon::parse("{$day} {$end}", $tz)->setTimezone(config('app.timezone')),
                     'title' => $title,
                     'subtitle' => $subtitle,
                     'kind' => $kind,

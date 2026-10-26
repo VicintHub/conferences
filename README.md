@@ -21,6 +21,8 @@ cd apps/web && cp .env.example .env.local && pnpm install && pnpm dev   # http:/
 
 Sign-in is passwordless: an emailed 6-digit code or one-click link (no SMS). Locally, mail goes to Mailpit at http://localhost:8025.
 
+Offline: the service worker only exists in production builds (`pnpm build && pnpm start`). It caches the app shell; the ticket and programme are kept in IndexedDB and cleared on sign-out.
+
 UI kit preview: `/_kitchen-sink` (dev only; set `NEXT_PUBLIC_SHOW_KITCHEN_SINK=1` to expose in a build).
 
 Checks: `composer test`, `vendor/bin/pint --test`, `vendor/bin/phpstan analyse`; `pnpm lint typecheck test build`.

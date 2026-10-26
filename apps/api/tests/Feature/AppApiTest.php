@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Domain\Programme\Models\ProgrammeSession;
 use App\Domain\Registration\Models\Attendee;
 use Database\Seeders\ProgrammeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,6 +36,7 @@ class AppApiTest extends TestCase
         $this->assertCount(6, $days);
         $this->assertSame('2027-01-19', $days[0]['date']);
         $this->assertSame('Evening of Worship', $days[0]['sessions'][0]['title']);
+        $this->assertSame('Royal Conf. + IYLC', collect($days)->firstWhere('date', '2027-01-23')['title']);
         $sat = collect($days)->firstWhere('date', '2027-01-23')['sessions'];
         $this->assertSame(['Arrival & check-in', 'Royal Conference', 'Lunch', 'IYLC'], array_column($sat, 'title'));
         $this->assertSame('2027-01-23T07:00:00+01:00', $sat[0]['starts_at']);
@@ -99,5 +101,16 @@ class AppApiTest extends TestCase
 
         $this->withToken($token)->postJson('/api/v1/auth/logout')->assertNoContent();
         $this->assertDatabaseCount('personal_access_tokens', 0);
+    }
+
+    public function test_seeded_times_are_venue_times_whatever_the_app_timezone(): void
+    {
+        config(['app.timezone' => 'UTC']);
+        date_default_timezone_set('UTC');
+        $this->seed(ProgrammeSeeder::class);
+
+        $first = ProgrammeSession::orderBy('starts_at')->first();
+        $this->assertSame('2027-01-19T17:00:00+01:00', $first->starts_at->copy()->setTimezone('Africa/Lagos')->toIso8601String());
+        $this->assertSame('2027-01-19T16:00:00+00:00', $first->starts_at->toIso8601String());
     }
 }
