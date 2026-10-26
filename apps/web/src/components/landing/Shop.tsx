@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { merch } from "@/content/landing";
 import { H2, Section, SectionHead } from "./shared";
 
@@ -16,9 +17,9 @@ export function Shop() {
         <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {merch.map((m) => (
             <li key={m.t} className="flex flex-col gap-3.5">
-              <a href="#shop" className="relative block aspect-square overflow-hidden rounded-2xl border border-ink-100 bg-white">
+              <Link href={m.href} className="relative block aspect-square overflow-hidden rounded-2xl border border-ink-100 bg-white">
                 <Image src={m.src} alt={m.t} fill sizes="(min-width: 768px) 25vw, 50vw" className="object-cover" />
-              </a>
+              </Link>
               <div className="flex flex-col justify-between gap-0.5 md:flex-row md:items-baseline">
                 <span className="font-display text-base font-bold uppercase text-cobalt-900 md:text-xl">{m.t}</span>
                 <span className="text-[17px] font-semibold text-ink-800">{m.p}</span>

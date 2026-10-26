@@ -99,4 +99,18 @@ describe("backend proxy", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("down")));
     expect((await GET(req("GET", "me", "t"), ctx("me"))).status).toBe(502);
   });
+
+  it("lets guests browse the shop and check out, but keeps the pass and order history private", async () => {
+    const f = vi.fn().mockResolvedValue(json({ data: [] }));
+    vi.stubGlobal("fetch", f);
+    expect((await GET(req("GET", "shop/products"), ctx("shop/products"))).status).toBe(200);
+    expect((await GET(req("GET", "shop/products/conference-tee"), ctx("shop/products/conference-tee"))).status).toBe(200);
+    expect((await POST(req("POST", "shop/checkout"), ctx("shop/checkout"))).status).toBe(200);
+    expect((await POST(req("POST", "shop/orders/MV-00012/verify?k=abc"), ctx("shop/orders/MV-00012/verify"))).status).toBe(200);
+    expect(f.mock.calls.every((c) => c[1].headers.Authorization === undefined)).toBe(true);
+    f.mockClear();
+    expect((await GET(req("GET", "me/orders"), ctx("me/orders"))).status).toBe(401);
+    expect((await POST(req("POST", "shop/orders/MV-00012/attach"), ctx("shop/orders/MV-00012/attach"))).status).toBe(401);
+    expect(f).not.toHaveBeenCalled();
+  });
 });

@@ -29,6 +29,9 @@ class ShopController extends Controller
             'meta' => [
                 'categories' => collect(self::CATEGORIES)->map(fn ($label, $key) => ['key' => $key, 'label' => $label, 'count' => (int) ($counts[$key] ?? 0)])->values(),
                 'total' => (int) $counts->sum(),
+                // So the checkout page can show the fee before the server prices the order.
+                'fee' => ['percent' => (float) config('shop.fee_percent'), 'flat_kobo' => (int) config('shop.fee_flat_kobo')],
+                'methods' => config('shop.methods'),
             ],
         ]);
     }

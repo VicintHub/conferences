@@ -4,6 +4,7 @@ import type { Me, ProgrammeDay, Session } from "./types";
 
 const state = vi.hoisted(() => ({ me: undefined as unknown, days: [] as unknown[], now: 0, mutate: vi.fn(), signOut: vi.fn() }));
 
+vi.mock("@/features/shop/PickupList", () => ({ PickupList: () => null }));
 vi.mock("./queries", () => ({
   useMe: () => ({ me: state.me, isPending: false, isError: false, refetch: vi.fn() }),
   useProgramme: () => ({ days: state.days, isPending: false, isError: false, refetch: vi.fn() }),
