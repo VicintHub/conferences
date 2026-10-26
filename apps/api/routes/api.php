@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\HealthController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\ProgrammeController;
 use App\Http\Controllers\Api\V1\RegistrationController;
+use App\Http\Controllers\Api\V1\SpeakerController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -14,6 +15,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/event', EventController::class);
     Route::get('/capacity', CapacityController::class);
     Route::get('/programme', ProgrammeController::class);
+    Route::get('/speakers', [SpeakerController::class, 'index']);
+    Route::get('/speakers/{slug}', [SpeakerController::class, 'show']);
 
     Route::post('/registrations', [RegistrationController::class, 'store'])->middleware('throttle:otp');
 
