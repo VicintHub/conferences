@@ -47,7 +47,10 @@ const data: TravelData = {
 beforeEach(() => {
   setDesktop(false);
   window.location.hash = "";
-  vi.stubGlobal("fetch", vi.fn(async () => json({ data })));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => json({ data })),
+  );
 });
 afterEach(() => vi.unstubAllGlobals());
 
