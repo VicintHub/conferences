@@ -81,8 +81,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         )}
         <div className="flex min-h-0 flex-1 flex-col lg:overflow-y-auto">{children}</div>
-        {/* Full-screen flows (e.g. sharing a testimony) hide the tab bar, as in the designs. */}
-        {!pathname.endsWith("/share") && (
+        {/* Full-screen flows (sharing a testimony, a single publicity item) hide the tab bar, as in the designs. */}
+        {!pathname.endsWith("/share") && !/^\/app\/publicity\/[^/]+$/.test(pathname) && (
           <div className="lg:hidden">
             <TabBar active={activeTab(pathname)} />
           </div>

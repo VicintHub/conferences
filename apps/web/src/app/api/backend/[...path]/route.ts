@@ -11,6 +11,9 @@ const ALLOWED: [method: string, pattern: RegExp, auth: boolean][] = [
   ["GET", /^programme$/, false],
   ["POST", /^auth\/logout$/, true],
   // Testimonies: reading and submitting are open to guests; the token (if any) personalises Amens.
+  ["GET", /^publicity$/, false],
+  ["GET", /^publicity\/[a-z0-9-]+$/, false],
+  ["POST", /^publicity\/[a-z0-9-]+\/track$/, false],
   ["GET", /^testimonies$/, false],
   ["POST", /^testimonies$/, false],
   ["PUT", /^testimonies\/\d+\/amen$/, true],

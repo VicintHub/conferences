@@ -18,7 +18,7 @@ class PublicitySeeder extends Seeder
         $items = [
             [
                 'slug' => 'official-flyer', 'title' => 'Official flyer', 'type' => 'flyer', 'meta' => 'Square · Status · Print', 'ratio' => '16/9',
-                'preview' => '/images/publicity/flyer-preview.jpg', 'caption' => $caption, 'published_at' => now()->subDays(2),
+                'preview' => '/images/publicity/flyer-preview.jpg', 'caption' => $caption, 'published_at' => now()->subDay(),
                 'sizes' => [
                     ['key' => 'square', 'label' => 'Square', 'dims' => '1080×1080', 'url' => '/images/publicity/flyer-square.jpg'],
                     ['key' => 'status', 'label' => 'Status', 'dims' => '1080×1920', 'url' => '/images/publicity/flyer-status.jpg'],
@@ -27,7 +27,7 @@ class PublicitySeeder extends Seeder
             ],
             [
                 'slug' => 'meet-the-hosts', 'title' => 'Meet the hosts card', 'type' => 'design', 'meta' => 'Square · Status', 'ratio' => '1/1',
-                'preview' => '/images/photos/lp-host-1.webp', 'published_at' => now()->subDays(1),
+                'preview' => '/images/photos/lp-host-1.webp', 'published_at' => now()->subDays(3),
                 'caption' => 'Meet our hosts, Rev. Samson and Rev. Stella Ajetomobi, at the 37th IMLC & IYLC, 19–24 January 2027, Ibadan. Registration is free. #JanConf2027',
                 'sizes' => [
                     ['key' => 'square', 'label' => 'Square', 'dims' => '1080×1080', 'url' => '/images/photos/lp-host-1.webp'],
