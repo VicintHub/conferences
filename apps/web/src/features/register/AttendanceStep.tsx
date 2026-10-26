@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Chip, OptionCard, Switch } from "@/components/ui";
+import { Checkbox, Chip, OptionCard, Switch } from "@/components/ui";
 import { conferenceDays, type RegistrationDraft } from "./schema";
 import type { Capacity } from "./api";
 
-type Values = Pick<RegistrationDraft, "mode" | "days" | "needs_accommodation">;
+type Values = Pick<RegistrationDraft, "mode" | "days" | "needs_accommodation" | "consent">;
 
 type Props = {
   id: string;
@@ -22,7 +22,9 @@ export function AttendanceStep({ id, defaults, capacity, capacityFailed, onSubmi
   const [mode, setMode] = useState<Values["mode"]>(full ? "online" : defaults.mode);
   const [days, setDays] = useState<string[]>(defaults.days);
   const [accom, setAccom] = useState(defaults.needs_accommodation);
+  const [consent, setConsent] = useState(defaults.consent);
   const [error, setError] = useState<string>();
+  const [consentError, setConsentError] = useState<string>();
   const effectiveMode = full ? "online" : mode;
   const pct = capacity ? Math.min(100, Math.round((capacity.taken / capacity.limit) * 100)) : 0;
 
@@ -33,7 +35,8 @@ export function AttendanceStep({ id, defaults, capacity, capacityFailed, onSubmi
       onSubmit={(e) => {
         e.preventDefault();
         if (days.length === 0) return setError("Pick at least one day");
-        onSubmit({ mode: effectiveMode, days, needs_accommodation: accom });
+        if (!consent) return setConsentError("Please agree to continue");
+        onSubmit({ mode: effectiveMode, days, needs_accommodation: accom, consent: true });
       }}
       className="flex flex-col gap-3.5"
     >
@@ -94,6 +97,17 @@ export function AttendanceStep({ id, defaults, capacity, capacityFailed, onSubmi
 
       <div className="mt-1.5">
         <Switch label="I need accommodation" checked={accom} onChange={setAccom} />
+      </div>
+      <div className="mt-2">
+        <Checkbox
+          label="I agree to the privacy notice and to receive conference messages."
+          checked={consent}
+          onChange={(v) => {
+            setConsent(v);
+            setConsentError(undefined);
+          }}
+          error={consentError}
+        />
       </div>
     </form>
   );

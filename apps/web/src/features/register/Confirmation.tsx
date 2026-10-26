@@ -9,6 +9,7 @@ import type { RegistrationResult } from "./schema";
 const categoryLabel = { delegate: "Delegate", international: "International delegate", minister: "Minister" } as const;
 
 export function Confirmation({ result }: { result: RegistrationResult }) {
+  const returning = result.meta.existing_account;
   const { data, meta } = result;
   const [promptOpen, setPromptOpen] = useState(true);
 
@@ -18,8 +19,12 @@ export function Confirmation({ result }: { result: RegistrationResult }) {
         <span className="flex size-16 items-center justify-center rounded-full bg-success-600">
           <Check size={32} strokeWidth={2.5} className="text-white" />
         </span>
-        <h1 className="text-[30px] font-bold leading-[1.15]">You’re in, {data.attendee.first_name}</h1>
-        <p className="text-[15px] text-cobalt-200">Claim ticket sent by SMS and email</p>
+        <h1 className="text-[30px] font-bold leading-[1.15]">
+          {returning ? "Welcome back" : "You’re in"}, {data.attendee.first_name}
+        </h1>
+        <p className="text-[15px] text-cobalt-200">
+          {returning ? "You’re signed in. Here’s your claim ticket." : "Claim ticket sent to your email"}
+        </p>
         {meta.downgraded_to_online && (
           <p role="status" className="rounded-xl bg-white/10 px-4 py-3 text-sm text-cream-50">
             Onsite places filled up just before you finished, so you’re registered to attend online. We’ll tell you if onsite places open
@@ -37,7 +42,7 @@ export function Confirmation({ result }: { result: RegistrationResult }) {
           </div>
         </div>
       </div>
-      <NotificationPrompt open={promptOpen} onClose={() => setPromptOpen(false)} />
+      {!returning && <NotificationPrompt open={promptOpen} onClose={() => setPromptOpen(false)} />}
     </div>
   );
 }

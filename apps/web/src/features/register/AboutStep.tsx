@@ -9,25 +9,34 @@ import { ageBands, aboutSchema, type RegistrationDraft } from "./schema";
 
 type Values = Pick<RegistrationDraft, "full_name" | "country" | "phone_national" | "email" | "church" | "location" | "age_band">;
 
-type Props = { id: string; defaults: Values; serverErrors?: Partial<Record<keyof Values, string>>; onSubmit: (v: Values) => void };
+type Props = { id: string; defaults: Values; onSubmit: (v: Values) => void };
 
-export function AboutStep({ id, defaults, serverErrors, onSubmit }: Props) {
+export function AboutStep({ id, defaults, onSubmit }: Props) {
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<Values>({ resolver: zodResolver(aboutSchema), defaultValues: defaults, mode: "onTouched" });
-  const err = (k: keyof Values) => errors[k]?.message ?? serverErrors?.[k];
+  const err = (k: keyof Values) => errors[k]?.message;
 
   return (
     <form id={id} onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4 md:gap-[22px]">
       <Input label="Full name" placeholder="Adebayo Ogunleye" autoComplete="name" error={err("full_name")} {...register("full_name")} />
 
-      <div className="grid gap-4 md:grid-cols-2 md:gap-4">
+      <div className="grid gap-4 md:grid-cols-2">
+        <Input
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          hint="We’ll email a code and a sign-in link. This is how you sign in."
+          error={err("email")}
+          {...register("email")}
+        />
         <div className="flex flex-col gap-1.5">
           <label htmlFor="phone_national" className="text-xs font-semibold uppercase tracking-[0.08em] text-ink-600">
-            Phone number
+            Phone number (optional)
           </label>
           <div
             className={cn(
@@ -58,17 +67,9 @@ export function AboutStep({ id, defaults, serverErrors, onSubmit }: Props) {
             />
           </div>
           <span className={cn("text-xs", err("phone_national") ? "text-brick-600" : "text-ink-400")}>
-            {err("phone_national") ?? "We’ll text a code to verify. This is how you sign in."}
+            {err("phone_national") ?? "For event-day updates. Not used to sign in."}
           </span>
         </div>
-        <Input
-          label="Email (optional)"
-          type="email"
-          placeholder="you@example.com"
-          autoComplete="email"
-          error={err("email")}
-          {...register("email")}
-        />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

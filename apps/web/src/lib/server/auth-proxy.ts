@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
 
-const API = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
+const API = () => process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1";
 const TOKEN_COOKIE = "jc27_token";
 
 /**
- * Proxies registration to the Laravel API and keeps the Sanctum token in an httpOnly cookie,
- * so it never reaches client-side JavaScript.
+ * Forwards a verification request (code or link) to the Laravel API and keeps the Sanctum token
+ * in an httpOnly cookie, so it never reaches client-side JavaScript.
  */
-export async function POST(request: Request) {
+export async function proxyVerify(request: Request, path: "/auth/verify" | "/auth/verify-link") {
   let upstream: Response;
   try {
-    upstream = await fetch(`${API}/registrations`, {
+    upstream = await fetch(`${API()}${path}`, {
       method: "POST",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
       body: await request.text(),

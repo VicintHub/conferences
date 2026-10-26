@@ -31,8 +31,8 @@ export const aboutSchema = z
   .object({
     full_name: z.string().trim().min(2, "Enter your full name"),
     country: countryIso,
-    phone_national: z.string().trim().min(1, "Enter your phone number"),
-    email: z.union([z.literal(""), z.string().trim().email("Enter a valid email address")]),
+    phone_national: z.string().trim(),
+    email: z.string().trim().min(1, "Enter your email address").email("Enter a valid email address"),
     church: z.string().trim().max(160),
     location: z.string().trim().max(120),
     age_band: z.enum(["16-17", "18-45", "46+"]),
@@ -47,14 +47,14 @@ export const attendanceSchema = z.object({
   mode: z.enum(["onsite", "online"]),
   days: z.array(z.string()).min(1, "Pick at least one day"),
   needs_accommodation: z.boolean(),
-});
-
-export const otpSchema = z.object({
-  code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code"),
   consent: z.literal(true, { error: "Please agree to continue" }),
 });
 
-export type RegistrationDraft = z.infer<typeof categorySchema> & z.infer<typeof aboutSchema> & z.infer<typeof attendanceSchema>;
+export const codeSchema = z.object({ code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code") });
+
+export type RegistrationDraft = z.infer<typeof categorySchema> &
+  z.infer<typeof aboutSchema> &
+  Omit<z.infer<typeof attendanceSchema>, "consent"> & { consent: boolean };
 
 export const initialDraft: RegistrationDraft = {
   category: "delegate",
@@ -68,14 +68,15 @@ export const initialDraft: RegistrationDraft = {
   mode: "onsite",
   days: conferenceDays.map((d) => d.iso),
   needs_accommodation: false,
+  consent: false,
 };
 
-export function toPayload(draft: RegistrationDraft, code: string) {
+export function toPayload(draft: RegistrationDraft) {
   return {
     category: draft.category,
     full_name: draft.full_name.trim(),
-    phone: toE164(draft.country as (typeof COUNTRIES)[number]["iso"], draft.phone_national),
-    email: draft.email || null,
+    email: draft.email.trim().toLowerCase(),
+    phone: draft.phone_national.trim() ? toE164(draft.country as (typeof COUNTRIES)[number]["iso"], draft.phone_national) : null,
     church: draft.church || null,
     location: draft.location || null,
     age_band: draft.age_band,
@@ -83,7 +84,6 @@ export function toPayload(draft: RegistrationDraft, code: string) {
     days: draft.days,
     needs_accommodation: draft.needs_accommodation,
     consent: true,
-    code,
   };
 }
 
@@ -92,7 +92,7 @@ export type RegistrationResult = {
     claim_code: string;
     category: string;
     mode: "onsite" | "online";
-    attendee: { first_name: string; full_name: string; phone: string };
+    attendee: { first_name: string; full_name: string; email: string };
   };
-  meta: { downgraded_to_online: boolean };
+  meta: { downgraded_to_online: boolean; existing_account: boolean };
 };

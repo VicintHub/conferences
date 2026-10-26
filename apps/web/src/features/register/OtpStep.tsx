@@ -1,14 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Checkbox } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { formatPhone } from "@/lib/phone";
-import { otpSchema } from "./schema";
+import { codeSchema } from "./schema";
 
 type Props = {
   id: string;
-  phone: string;
+  email: string;
   resendAfter: number;
   error?: string;
   onSubmit: (code: string) => void;
@@ -17,9 +15,9 @@ type Props = {
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
-export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: Props) {
+/** Six-box code entry shared by registration and sign-in. The emailed link is the alternative to typing the code. */
+export function OtpStep({ id, email, resendAfter, error, onSubmit, onResend }: Props) {
   const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
-  const [consent, setConsent] = useState(false);
   const [localError, setLocalError] = useState<string>();
   const [seconds, setSeconds] = useState(resendAfter);
   const refs = useRef<(HTMLInputElement | null)[]>([]);
@@ -31,8 +29,8 @@ export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: P
   }, [seconds]);
 
   const submit = useCallback(
-    (code: string, agreed: boolean) => {
-      const parsed = otpSchema.safeParse({ code, consent: agreed });
+    (code: string) => {
+      const parsed = codeSchema.safeParse({ code });
       if (!parsed.success) return setLocalError(parsed.error.issues[0].message);
       setLocalError(undefined);
       onSubmit(code);
@@ -40,32 +38,21 @@ export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: P
     [onSubmit],
   );
 
-  const fill = useCallback((code: string) => setDigits(code.slice(0, 6).split("").concat(Array(6).fill("")).slice(0, 6)), []);
-
-  // Android auto-read of the SMS (WebOTP). Silently skipped where unsupported.
-  useEffect(() => {
-    if (!("OTPCredential" in window)) return;
-    const ac = new AbortController();
-    (navigator.credentials as CredentialsContainer & { get: (o: unknown) => Promise<{ code?: string } | null> })
-      .get({ otp: { transport: ["sms"] }, signal: ac.signal })
-      .then((c) => c?.code && fill(c.code.replace(/\D/g, "")))
-      .catch(() => {});
-    return () => ac.abort();
-  }, [fill]);
-
   const set = (i: number, raw: string) => {
     const v = raw.replace(/\D/g, "");
     if (v.length > 1) {
-      fill(v);
-      refs.current[Math.min(v.length, 5)]?.focus();
-      if (v.length >= 6 && consent) submit(v.slice(0, 6), consent);
+      // Paste, or the browser's one-time-code autofill, into the first box.
+      const code = v.slice(0, 6);
+      setDigits(code.split("").concat(Array(6).fill("")).slice(0, 6));
+      refs.current[Math.min(code.length, 5)]?.focus();
+      if (code.length === 6) submit(code);
       return;
     }
     const next = [...digits];
     next[i] = v;
     setDigits(next);
     if (v && i < 5) refs.current[i + 1]?.focus();
-    if (v && i === 5 && consent) submit(next.join(""), consent);
+    if (v && i === 5) submit(next.join(""));
   };
 
   const message = localError ?? error;
@@ -76,11 +63,13 @@ export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: P
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
-        submit(digits.join(""), consent);
+        submit(digits.join(""));
       }}
       className="flex flex-col gap-3.5"
     >
-      <p className="text-[15px] leading-[1.45] text-ink-500">Sent to {formatPhone(phone)}</p>
+      <p className="text-[15px] leading-[1.45] text-ink-500">
+        We emailed a code to <strong className="font-semibold text-ink-800">{email}</strong>. Enter it here, or tap the link in the email.
+      </p>
       <div className="mt-1.5 grid grid-cols-6 gap-2 md:max-w-sm" role="group" aria-label="6-digit code">
         {digits.map((d, i) => (
           <input
@@ -120,6 +109,7 @@ export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: P
             try {
               await onResend();
               setSeconds(60);
+              setLocalError(undefined);
             } catch {
               setLocalError("Couldn’t resend the code. Try again.");
             }
@@ -129,7 +119,7 @@ export function OtpStep({ id, phone, resendAfter, error, onSubmit, onResend }: P
           Resend code
         </button>
       )}
-      <Checkbox label="I agree to the privacy notice and to receive conference messages." checked={consent} onChange={setConsent} />
+      <p className="text-[13px] text-ink-400">Can’t find it? Check your spam folder.</p>
     </form>
   );
 }
