@@ -18,3 +18,9 @@ export function whatsappUrl(number: string, hotel: string, code: string | null):
   const text = `Hello, I'd like to book a room at ${hotel} for Jan. Conf 2027${code ? ` (code ${code})` : ""}.`;
   return `https://wa.me/${number.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
 }
+
+/** Directions to a hotel from wherever the person is. */
+export const hotelDirectionsUrl = (h: { name: string; lat: number | null; lng: number | null }) =>
+  h.lat !== null && h.lng !== null
+    ? `https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${h.name} Ibadan`)}`;

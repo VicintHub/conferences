@@ -13,7 +13,7 @@ import { useTravel } from "./api";
 import { HotelDetail } from "./HotelDetail";
 import { directionsUrl, mapEmbedUrl, venueLink } from "./links";
 import { HotelImage, kmLabel, Pill } from "./parts";
-import { budgets, inBudget, type Budget, type Hotel, type Shuttle, type Venue } from "./types";
+import { budgets, hasRates, inBudget, type Budget, type Hotel, type Shuttle, type Venue } from "./types";
 
 type Tab = "hotels" | "getting-there";
 
@@ -47,7 +47,8 @@ export function Travel() {
     );
 
   const hotels = travel.hotels.filter((h) => inBudget(h, budget));
-  const filters = <BudgetChips value={budget} onChange={setBudget} />;
+  // Until hotels have rates there is nothing to filter by, so the chips stay out of the way.
+  const filters = hasRates(travel.hotels) ? <BudgetChips value={budget} onChange={setBudget} /> : null;
   const list = (cols: 1 | 2) => (
     <ul className={cn("grid gap-5", cols === 2 ? "grid-cols-2 gap-x-5" : "grid-cols-1")}>
       {hotels.map((h) => (
@@ -124,7 +125,7 @@ export function Travel() {
       </div>
       {tab === "hotels" ? (
         <>
-          <div className="mt-4 overflow-x-auto px-5">{filters}</div>
+          {filters && <div className="mt-4 overflow-x-auto px-5">{filters}</div>}
           <div className="px-5 pb-8 pt-4">{list(1)}</div>
         </>
       ) : (
@@ -175,8 +176,10 @@ function HotelCard({ hotel, desktop, onOpen }: { hotel: Hotel; desktop: boolean;
           <span className="text-sm text-ink-500">{hotel.area}</span>
         </div>
         <div className="flex flex-none flex-col items-end">
-          <span className="text-[17px] font-bold text-cobalt-700">{naira(hotel.price_kobo)}</span>
-          {!desktop && <span className="text-xs text-ink-500">per night</span>}
+          <span className={cn("font-bold", hotel.price_kobo === null ? "text-sm text-ink-500" : "text-[17px] text-cobalt-700")}>
+            {hotel.price_kobo === null ? "Ask for rate" : naira(hotel.price_kobo)}
+          </span>
+          {!desktop && hotel.price_kobo !== null && <span className="text-xs text-ink-500">per night</span>}
         </div>
       </div>
     </>

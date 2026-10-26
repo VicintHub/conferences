@@ -15,6 +15,9 @@ class HotelResource extends JsonResource
             'slug' => $this->slug,
             'name' => $this->name,
             'area' => $this->area,
+            'lat' => $this->lat !== null ? (float) $this->lat : null,
+            'lng' => $this->lng !== null ? (float) $this->lng : null,
+            // Null until the committee has the hotel's rate; the app then says "ask for the rate".
             'price_kobo' => $this->price_kobo,
             'distance_km' => $this->distance_km,
             'drive_minutes' => $this->drive_minutes,

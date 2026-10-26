@@ -2,9 +2,12 @@ export type Hotel = {
   slug: string;
   name: string;
   area: string;
-  price_kobo: number;
+  lat: number | null;
+  lng: number | null;
+  /** Null until the committee has the hotel's rate. */
+  price_kobo: number | null;
   distance_km: number;
-  drive_minutes: number;
+  drive_minutes: number | null;
   conference_rate: boolean;
   /** Only present on hotels where the conference rate applies. */
   rate_code: string | null;
@@ -31,12 +34,18 @@ export const budgets: { key: Budget; label: string }[] = [
 const NAIRA_20K = 2_000_000;
 const NAIRA_35K = 3_500_000;
 
+/** The budget filters only mean something once rates are known. */
+export const hasRates = (hotels: Hotel[]) => hotels.some((h) => h.price_kobo !== null);
+
 export function inBudget(h: Hotel, b: Budget): boolean {
+  if (b === "under20" || b === "mid") {
+    if (h.price_kobo === null) return false; // an unknown rate is not "under ₦20k"
+  }
   switch (b) {
     case "under20":
-      return h.price_kobo < NAIRA_20K;
+      return h.price_kobo! < NAIRA_20K;
     case "mid":
-      return h.price_kobo >= NAIRA_20K && h.price_kobo <= NAIRA_35K;
+      return h.price_kobo! >= NAIRA_20K && h.price_kobo! <= NAIRA_35K;
     case "conference":
       return h.conference_rate;
     default:
