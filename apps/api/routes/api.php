@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\Api\V1\Admin\ApprovalController;
 use App\Http\Controllers\Api\V1\Admin\BroadcastController;
+use App\Http\Controllers\Api\V1\Admin\CheckinController;
+use App\Http\Controllers\Api\V1\Admin\DeskController;
 use App\Http\Controllers\Api\V1\Admin\MeController as AdminMeController;
 use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
 use App\Http\Controllers\Api\V1\Admin\OverviewController;
 use App\Http\Controllers\Api\V1\Admin\PublicityAdminController;
 use App\Http\Controllers\Api\V1\Admin\RegistrantController;
+use App\Http\Controllers\Api\V1\Admin\ScanController;
 use App\Http\Controllers\Api\V1\Admin\SettingsController;
 use App\Http\Controllers\Api\V1\Admin\StaffAdminController;
 use App\Http\Controllers\Api\V1\Admin\StaffAuthController;
@@ -145,6 +148,16 @@ Route::prefix('v1')->group(function () {
                 Route::post('/staff', [StaffAdminController::class, 'store']);
                 Route::patch('/staff/{staff}', [StaffAdminController::class, 'update'])->whereNumber('staff');
             });
+            Route::middleware('staff:desk')->group(function () {
+                Route::get('/desk/lookup', [DeskController::class, 'lookup'])->middleware('throttle:120,1');
+                Route::post('/desk/print', [DeskController::class, 'print'])->middleware('throttle:60,1');
+                Route::get('/desk/summary', [DeskController::class, 'summary']);
+            });
+            Route::middleware('staff:scan')->group(function () {
+                Route::post('/scans/batch', [ScanController::class, 'batch'])->middleware('throttle:240,1');
+                Route::get('/scans/roster', [ScanController::class, 'roster'])->middleware('throttle:30,1');
+            });
+            Route::get('/checkin', CheckinController::class)->middleware('staff:checkin');
             Route::get('/teams', [TeamAdminController::class, 'index'])->middleware('staff:teams');
             Route::middleware('staff:orders')->group(function () {
                 Route::get('/orders', [OrderAdminController::class, 'index']);
