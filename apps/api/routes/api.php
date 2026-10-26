@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\EventController;
 use App\Http\Controllers\Api\V1\FeedbackController;
 use App\Http\Controllers\Api\V1\HealthController;
+use App\Http\Controllers\Api\V1\LiveController;
 use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\OrderController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Api\V1\SurveyController;
 use App\Http\Controllers\Api\V1\TeamController;
 use App\Http\Controllers\Api\V1\TeamMemberController;
 use App\Http\Controllers\Api\V1\TestimonyController;
+use App\Http\Controllers\Api\V1\TravelController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -73,6 +75,11 @@ Route::prefix('v1')->group(function () {
         Route::get('/me/applications', [ApplicationController::class, 'index']);
         Route::post('/me/applications', [ApplicationController::class, 'store'])->middleware('throttle:10,1');
         Route::post('/me/applications/{application}/documents', [ApplicationController::class, 'documents'])->whereNumber('application')->middleware('throttle:20,1');
+        Route::get('/live', [LiveController::class, 'show']);
+        Route::post('/live/heartbeat', [LiveController::class, 'heartbeat'])->middleware('throttle:6,1');
+        Route::post('/sessions/{session}/remind', [LiveController::class, 'remind']);
+        Route::delete('/sessions/{session}/remind', [LiveController::class, 'unremind']);
+        Route::get('/travel', TravelController::class);
         Route::get('/survey', [SurveyController::class, 'show']);
         Route::post('/survey', [SurveyController::class, 'store']);
     });
