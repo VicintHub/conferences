@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { prefetchTravel } from "@/features/travel/api";
 import { TabBar } from "@/components/ui";
 import { SessionFeedbackSheet } from "@/features/feedback/SessionFeedbackSheet";
 import { useFeedbackPrompt } from "@/features/feedback/useFeedbackPrompt";
@@ -20,15 +22,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const online = useOnline();
   const { me, stale } = useMe();
   const prompt = useFeedbackPrompt();
+  const qc = useQueryClient();
 
   // Once signed in and online, visit the core screens so the service worker has them for offline start-up.
   const signedIn = !!me && !stale;
   useEffect(() => {
     if (!signedIn || !navigator.onLine) return;
-    for (const path of ["/app", "/app/programme", "/app/pass", "/app/more"]) {
+    for (const path of ["/app", "/app/programme", "/app/pass", "/app/more", "/app/hotels"]) {
       fetch(path, { headers: { Accept: "text/html" } }).catch(() => {});
     }
-  }, [signedIn]);
+    // Hotels and shuttles matter most when data is poor, so keep a copy on the phone.
+    void prefetchTravel(qc).catch(() => {});
+  }, [signedIn, qc]);
 
   return (
     <div className="min-h-[100svh] bg-white lg:grid lg:h-[100svh] lg:grid-cols-[240px_minmax(0,1fr)] lg:bg-cream-50">
@@ -82,7 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
         <div className="flex min-h-0 flex-1 flex-col lg:overflow-y-auto">{children}</div>
         {/* Full-screen flows (sharing a testimony, a single publicity item) hide the tab bar, as in the designs. */}
-        {!pathname.endsWith("/share") && !/^\/app\/publicity\/[^/]+$/.test(pathname) && (
+        {!pathname.endsWith("/share") && !/^\/app\/(publicity|hotels)\/[^/]+$/.test(pathname) && (
           <div className="lg:hidden">
             <TabBar active={activeTab(pathname)} />
           </div>
