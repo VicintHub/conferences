@@ -9,3 +9,6 @@ export * from "./Segmented";
 export * from "./Sheet";
 export * from "./Stepper";
 export * from "./TabBar";
+export * from "./Checkbox";
+export * from "./OptionCard";
+export * from "./Switch";
