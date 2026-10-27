@@ -82,7 +82,17 @@ export function ProductImage({
       </div>
     );
   }
-  return <Image src={src} alt={name} fill sizes={sizes} priority={priority} className={cn("object-cover", className)} />;
+  return (
+    <Image
+      src={src}
+      alt={name}
+      fill
+      sizes={sizes}
+      priority={priority}
+      // The merchandise photos show a front and a back side by side, so they are shown whole by default rather than cropped.
+      className={cn(!className?.includes("object-") && "object-contain", className)}
+    />
+  );
 }
 
 /** Bag icon with a count badge, for phone headers. */

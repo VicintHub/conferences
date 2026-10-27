@@ -72,12 +72,12 @@ export const regOptions = [
   "Remote Break Out Sessions Via Zoom",
 ];
 
-// Placeholder mockups carry third-party branding; replace before launch (see docs/design/README.md).
+// The Revival (37th IMLC) merchandise: keep in step with the shop's catalogue (apps/api ShopSeeder).
 export const merch = [
-  { t: "Executive Polo", p: "₦12,500", src: "/images/merch/polo.png", href: "/shop/executive-polo" },
-  { t: "Hoodie + Cap set", p: "₦25,000", src: "/images/merch/hoodie.png", href: "/shop/hoodie-cap-set" },
-  { t: "Conference T-shirt", p: "₦8,000", src: "/images/merch/tee-green.png", href: "/shop/conference-tee" },
-  { t: "Psalm 23 Jersey", p: "₦15,000", src: "/images/merch/jersey.png", href: "/shop/psalm-23-jersey" },
+  { t: "Revival Hoodie", p: "₦20,000", src: "/images/merch/revival-hoodie.jpg", href: "/shop/revival-hoodie" },
+  { t: "Revival Polo", p: "₦13,000", src: "/images/merch/revival-polo-white.jpg", href: "/shop/revival-polo" },
+  { t: "Revival Baseball Shirt", p: "₦16,000", src: "/images/merch/revival-baseball.jpg", href: "/shop/revival-baseball-shirt" },
+  { t: "Revival T-shirt", p: "₦13,000", src: "/images/merch/revival-tee.jpg", href: "/shop/revival-t-shirt" },
 ];
 
 export const galleryPhotos = ["lp-hero", "lp-about-1", "lp-about-2", "lp-hotel", "lp-reg", "lp-hero-m", "lp-host-1", "lp-host-2"].map(

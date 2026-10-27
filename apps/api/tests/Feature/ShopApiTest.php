@@ -13,7 +13,6 @@ use App\Domain\Store\Payments\FakeGateway;
 use App\Domain\Store\Payments\PaymentGateway;
 use App\Domain\Store\Payments\PaystackGateway;
 use App\Mail\OrderReceiptMail;
-use Database\Seeders\ShopSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
@@ -28,7 +27,32 @@ class ShopApiTest extends TestCase
     {
         parent::setUp();
         Mail::fake();
-        $this->seed(ShopSeeder::class);
+        $this->catalogue();
+    }
+
+    /** A fixed catalogue for these tests, so they don't change when the real merchandise and prices are updated. */
+    private function catalogue(): void
+    {
+        $sizes = ['S', 'M', 'L', 'XL', 'XXL'];
+        $products = [
+            ['executive-polo', '37th Edition Executive Polo', 'apparel', 1250000, 'New', [['name' => 'Cobalt', 'hex' => '#003070'], ['name' => 'White', 'hex' => '#ffffff'], ['name' => 'Brick', 'hex' => '#8c1f1c']], $sizes],
+            ['hoodie-cap-set', 'Conference Hoodie + Cap set', 'apparel', 2500000, 'Bundle', [['name' => 'Brick', 'hex' => '#8c1f1c']], $sizes],
+            ['conference-tee', 'Conference T-shirt', 'apparel', 800000, null, [['name' => 'Green', 'hex' => '#2f7d4f']], $sizes],
+            ['media-team-tee', 'Media Team T-shirt', 'apparel', 800000, null, [['name' => 'Black', 'hex' => '#16181d']], $sizes],
+            ['psalm-23-jersey', 'Psalm 23 Jersey', 'apparel', 1500000, null, [['name' => 'Black', 'hex' => '#16181d']], $sizes],
+            ['ministers-journal', 'Ministers Syllabus & Prophetic Journal', 'books', 600000, null, [], []],
+        ];
+        foreach ($products as $i => [$slug, $name, $category, $price, $tag, $colors, $productSizes]) {
+            $product = Product::create([
+                'slug' => $slug, 'name' => $name, 'category' => $category, 'price_kobo' => $price, 'tag' => $tag, 'images' => $slug === 'executive-polo' ? ['/images/merch/polo.png', '/images/merch/tee-black.png', '/images/merch/tee-green.png'] : [], 'colors' => $colors,
+                'sizes' => $productSizes, 'facts' => [], 'active' => true, 'sort' => $i,
+            ]);
+            foreach ($productSizes ?: [null] as $size) {
+                foreach ($colors ?: [['name' => null]] as $color) {
+                    $product->variants()->create(['size' => $size, 'color' => $color['name'], 'stock' => $category === 'books' ? 100 : ($size === 'L' ? 46 : 30)]);
+                }
+            }
+        }
     }
 
     private function variant(string $slug, ?string $size = null): ProductVariant
