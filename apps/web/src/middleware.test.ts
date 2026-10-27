@@ -13,8 +13,8 @@ describe("app route guard", () => {
   it("lets signed-in visitors through", () => {
     expect(middleware(req("/app", "jc27_token=abc")).headers.get("location")).toBeNull();
   });
-  it("guards the app and the console, and nothing else", () => {
-    expect(config.matcher).toEqual(["/app/:path*", "/admin", "/admin/:path*"]);
+  it("guards the app, the console and the door tools, and nothing else", () => {
+    expect(config.matcher).toEqual(["/app/:path*", "/admin", "/admin/:path*", "/desk", "/scan"]);
   });
 });
 
@@ -37,5 +37,17 @@ describe("admin console guard", () => {
 
   it("does not let a staff cookie open the attendee app", () => {
     expect(middleware(req("/app", "jc27_staff=abc")).headers.get("location")).toContain("/login");
+  });
+});
+
+describe("door tools guard", () => {
+  it("sends signed-out staff to the staff sign-in and back to the tool", () => {
+    expect(middleware(req("/scan")).headers.get("location")).toBe("http://localhost/admin/login?next=%2Fscan");
+    expect(middleware(req("/desk")).headers.get("location")).toBe("http://localhost/admin/login?next=%2Fdesk");
+  });
+
+  it("needs the staff cookie, not an attendee's", () => {
+    expect(middleware(req("/scan", "jc27_token=abc")).headers.get("location")).toContain("/admin/login");
+    expect(middleware(req("/desk", "jc27_staff=abc")).headers.get("location")).toBeNull();
   });
 });

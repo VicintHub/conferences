@@ -89,6 +89,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
             aria-pressed={color === c.name}
             onClick={() => {
               setColor(c.name);
+              if (c.image !== undefined) setImage(c.image);
               setQty(1);
             }}
             style={{ background: c.hex }}
@@ -194,7 +195,7 @@ export function ProductView({ product }: { product: ProductDetail }) {
               </button>
             ))}
           </div>
-          <div className="relative aspect-square overflow-hidden rounded-3xl bg-white">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-3xl bg-white">
             <ProductImage
               src={images[image]}
               name={product.name}

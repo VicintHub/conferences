@@ -10,7 +10,12 @@ const STAFF_COOKIE = "jc27_staff";
 const ALLOWED: [method: string, pattern: RegExp, auth: boolean][] = [
   ["POST", /^auth\/otp$/, false],
   ["POST", /^auth\/logout$/, true],
-  ["GET", /^(me|overview|settings|staff|teams|testimonies|publicity|broadcasts)$/, true],
+  ["GET", /^(me|overview|settings|staff|teams|testimonies|publicity|broadcasts|checkin)$/, true],
+  // Print desk and scanner.
+  ["GET", /^desk\/(lookup|summary)$/, true],
+  ["POST", /^desk\/print$/, true],
+  ["POST", /^scans\/batch$/, true],
+  ["GET", /^scans\/roster$/, true],
   ["GET", /^(registrants|orders|approvals)$/, true],
   ["GET", /^registrants\/export$/, true],
   ["GET", /^approvals\/(reg|app)-\d+$/, true],

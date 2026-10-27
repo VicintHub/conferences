@@ -157,3 +157,26 @@ describe("MockPay", () => {
     expect(await screen.findByText(/isn’t enabled/i)).toBeTruthy();
   });
 });
+
+describe("ProductView colours with their own photo", () => {
+  it("shows the navy photo when navy is chosen", () => {
+    const polo: ProductDetail = {
+      ...product,
+      name: "Revival Polo",
+      images: ["/images/merch/revival-polo-white.jpg", "/images/merch/revival-polo-navy.jpg"],
+      colors: [
+        { name: "White", hex: "#ffffff", image: 0 },
+        { name: "Navy", hex: "#0b2a5b", image: 1 },
+      ],
+      variants: [
+        { id: 1, size: "L", color: "White", stock: 5 },
+        { id: 2, size: "L", color: "Navy", stock: 5 },
+      ],
+      sizes: ["L"],
+    };
+    const { container } = render(wrap(<ProductView product={polo} />));
+    expect(container.querySelector("img")?.getAttribute("src")).toContain("revival-polo-white");
+    fireEvent.click(screen.getAllByRole("button", { name: "Navy" })[0]!);
+    expect(container.querySelector("img")?.getAttribute("src")).toContain("revival-polo-navy");
+  });
+});

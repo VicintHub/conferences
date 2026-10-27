@@ -59,7 +59,21 @@ const staff = (over: Partial<Staff> = {}): Staff => ({
   role_label: "Admin",
   title: "Registration lead",
   active: true,
-  areas: ["registrants", "approvals", "teams", "orders", "broadcasts", "testimonies", "publicity", "settings", "staff"],
+  areas: [
+    "registrants",
+    "approvals",
+    "teams",
+    "orders",
+    "broadcasts",
+    "testimonies",
+    "publicity",
+    "settings",
+    "staff",
+    "desk",
+    "scan",
+    "checkin",
+    "override",
+  ],
   ...over,
 });
 const me = (s = staff(), badges = { approvals: 18, testimonies: 7 }) => ({ data: s, meta: { badges } });
@@ -97,6 +111,8 @@ describe("AdminShell", () => {
     expect(within(nav).getByLabelText("18 waiting")).toBeInTheDocument();
     expect(within(nav).getByLabelText("7 waiting")).toBeInTheDocument();
     expect(screen.getByText("Registration lead")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Print desk" })).toHaveAttribute("href", "/desk");
+    expect(screen.getByRole("link", { name: "Scanner" })).toHaveAttribute("href", "/scan");
     expect(screen.getByText("page body")).toBeInTheDocument();
     expect(within(nav).getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
   });
@@ -770,5 +786,77 @@ describe("Settings", () => {
     await waitFor(() =>
       expect(sent(f, "POST /staff")).toMatchObject({ name: "New Person", email: "new@example.com", role: "registration" }),
     );
+  });
+});
+
+describe("CheckIn", () => {
+  const data = {
+    checkpoints: [
+      { key: "gate", label: "Gate", ok: 286, refused: 4 },
+      { key: "hall", label: "Hall", ok: 120, refused: 0 },
+      { key: "meal", label: "Meal", ok: 90, refused: 2 },
+      { key: "merch", label: "Merch", ok: 14, refused: 0 },
+    ],
+    meals: { Lunch: 90 },
+    refusals: { "Already served": 2, "Registered as online": 4 },
+    overrides: 1,
+    badges: { today: 412, total: 900, reprints: 3 },
+    recent: [
+      {
+        id: 1,
+        checkpoint: "meal",
+        result: "refused",
+        reason: "Already served",
+        overridden: false,
+        who: "Chidi Okafor",
+        device: "Meal point 2",
+        scanned_at: "2027-01-23T12:58:00+01:00",
+      },
+      {
+        id: 2,
+        checkpoint: "gate",
+        result: "ok",
+        reason: null,
+        overridden: true,
+        who: "Funmi Adeleke",
+        device: null,
+        scanned_at: "2027-01-23T12:50:00+01:00",
+      },
+    ],
+  };
+
+  it("summarises the door, the meals, the badges and the latest scans", async () => {
+    api({ "GET /checkin": { data } });
+    const { CheckIn } = await import("./CheckIn");
+    render(wrap(<CheckIn />));
+
+    expect(await screen.findByText("286")).toBeInTheDocument();
+    expect(screen.getByText("4 refused")).toBeInTheDocument();
+    expect(screen.getByText("412")).toBeInTheDocument();
+    expect(screen.getByText(/3 reprints/)).toBeInTheDocument();
+    expect(screen.getByText("1 supervisor override")).toBeInTheDocument();
+    expect(screen.getAllByText("Already served").length).toBeGreaterThan(1);
+    expect(screen.getByText("Chidi Okafor")).toBeInTheDocument();
+    expect(screen.getByText("Override")).toBeInTheDocument();
+  });
+
+  it("is calm when nothing has been scanned", async () => {
+    api({
+      "GET /checkin": {
+        data: {
+          ...data,
+          checkpoints: data.checkpoints.map((c) => ({ ...c, ok: 0, refused: 0 })),
+          meals: {},
+          refusals: {},
+          overrides: 0,
+          recent: [],
+        },
+      },
+    });
+    const { CheckIn } = await import("./CheckIn");
+    render(wrap(<CheckIn />));
+    expect(await screen.findByText("Nothing scanned yet.")).toBeInTheDocument();
+    expect(screen.getByText("None yet today.")).toBeInTheDocument();
+    expect(screen.getByText("None today.")).toBeInTheDocument();
   });
 });

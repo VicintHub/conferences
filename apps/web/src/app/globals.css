@@ -63,6 +63,7 @@
   --animate-sheet-in: sheet-in 200ms var(--ease-out);
   --animate-fade-in: fade-in 200ms var(--ease-out);
   --animate-drawer-in: drawer-in 200ms var(--ease-out);
+  --animate-progress: progress 1500ms linear forwards;
 }
 
 @keyframes sheet-in {
@@ -79,6 +80,14 @@
   }
   to {
     transform: none;
+  }
+}
+@keyframes progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 @keyframes fade-in {
