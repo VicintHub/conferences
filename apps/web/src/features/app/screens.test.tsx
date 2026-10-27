@@ -25,6 +25,7 @@ const me = (over: Partial<Me> = {}): Me => ({
   days: [],
   needs_accommodation: false,
   status: "confirmed",
+  minister_verified: false,
   badge: null,
   access: [
     { key: "gate", label: "Gate", used: false },

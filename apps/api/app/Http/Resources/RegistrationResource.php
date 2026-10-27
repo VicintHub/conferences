@@ -18,6 +18,7 @@ class RegistrationResource extends JsonResource
             'days' => $this->days,
             'needs_accommodation' => $this->needs_accommodation,
             'status' => $this->status,
+            'minister_verified' => (bool) $this->minister_verified_at,
             'badge' => $this->badge_printed_at ? ['printed_at' => $this->badge_printed_at->toIso8601String()] : null,
             // Scan history arrives with the scanner (build step 10); until then nothing is marked used.
             'access' => collect(['gate' => 'Gate', 'hall' => 'Hall', 'meal' => 'Meal', 'merch' => 'Merch'])

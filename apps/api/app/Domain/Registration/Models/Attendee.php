@@ -3,6 +3,7 @@
 namespace App\Domain\Registration\Models;
 
 use App\Domain\Registration\Enums\AgeBand;
+use App\Domain\Teams\Models\TeamMember;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -20,6 +21,11 @@ class Attendee extends Authenticatable
             'age_band' => AgeBand::class,
             'email_verified_at' => 'datetime',
         ];
+    }
+
+    public function teamMembership(): HasOne
+    {
+        return $this->hasOne(TeamMember::class);
     }
 
     public function registration(): HasOne

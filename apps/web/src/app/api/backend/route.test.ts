@@ -13,6 +13,7 @@ const req = (method: string, path: string, token?: string, body?: object) =>
 const ctx = (path: string) => ({ params: Promise.resolve({ path: path.split("/") }) });
 
 afterEach(() => vi.unstubAllGlobals());
+const handlers = { GET, POST, DELETE, PATCH, PUT };
 
 describe("backend proxy", () => {
   it("adds the bearer token from the cookie", async () => {
@@ -112,5 +113,31 @@ describe("backend proxy", () => {
     expect((await GET(req("GET", "me/orders"), ctx("me/orders"))).status).toBe(401);
     expect((await POST(req("POST", "shop/orders/MV-00012/attach"), ctx("shop/orders/MV-00012/attach"))).status).toBe(401);
     expect(f).not.toHaveBeenCalled();
+  });
+
+  it("keeps teams and applications behind sign-in and exposes only the routes the app uses", async () => {
+    const f = vi.fn().mockResolvedValue(json({ data: [] }));
+    vi.stubGlobal("fetch", f);
+    for (const [method, path] of [
+      ["GET", "me/teams/church"],
+      ["POST", "me/teams/minister/members"],
+      ["POST", "me/teams/church/members/import"],
+      ["DELETE", "me/teams/church/members/4"],
+      ["POST", "teams/CLA-7Q4K/join"],
+      ["GET", "me/applications"],
+      ["POST", "me/applications/3/documents"],
+    ] as const) {
+      expect((await handlers[method](req(method, path), ctx(path))).status, `${method} ${path} without a cookie`).toBe(401);
+    }
+    expect(f).not.toHaveBeenCalled();
+
+    expect((await POST(req("POST", "me/applications", "1|abc"), ctx("me/applications"))).status).toBe(200);
+    expect(f.mock.calls[0][1].headers.Authorization).toBe("Bearer 1|abc");
+
+    // Not part of the app's vocabulary: unknown kinds, bad codes, member import for minister teams.
+    expect((await GET(req("GET", "me/teams/other", "t"), ctx("me/teams/other"))).status).toBe(404);
+    expect((await POST(req("POST", "teams/lowercase/join", "t"), ctx("teams/lowercase/join"))).status).toBe(404);
+    expect((await POST(req("POST", "me/teams/minister/members/import", "t"), ctx("me/teams/minister/members/import"))).status).toBe(404);
+    expect((await GET(req("GET", "me/applications/3", "t"), ctx("me/applications/3"))).status).toBe(404);
   });
 });

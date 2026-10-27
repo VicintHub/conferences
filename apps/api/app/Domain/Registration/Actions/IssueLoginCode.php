@@ -5,6 +5,7 @@ namespace App\Domain\Registration\Actions;
 use App\Domain\Registration\Models\Attendee;
 use App\Domain\Registration\Models\OtpCode;
 use App\Mail\LoginCodeMail;
+use App\Mail\TeamInviteMail;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 
@@ -19,7 +20,8 @@ class IssueLoginCode
 
     public const TTL_MINUTES = 15;
 
-    public function __invoke(string $email): void
+    /** @param  array{by: string, team: string}|null  $invite  set when a team leader adds this person, which changes the email's wording */
+    public function __invoke(string $email, ?array $invite = null): void
     {
         $email = strtolower(trim($email));
 
@@ -45,12 +47,10 @@ class IssueLoginCode
 
         $link = rtrim((string) config('app.frontend_url'), '/').'/auth/verify?'.http_build_query(['email' => $email, 'token' => $token]);
 
-        Mail::to($email)->queue(new LoginCodeMail(
-            firstName: explode(' ', trim($attendee->full_name))[0],
-            code: $code,
-            link: $link,
-            minutes: self::TTL_MINUTES,
-        ));
+        $first = explode(' ', trim($attendee->full_name))[0];
+        Mail::to($email)->queue($invite
+            ? new TeamInviteMail($first, $invite['by'], $invite['team'], $code, $link, self::TTL_MINUTES)
+            : new LoginCodeMail($first, $code, $link, self::TTL_MINUTES));
     }
 
     public static function codeHash(string $email, string $code): string

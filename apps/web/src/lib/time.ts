@@ -56,3 +56,10 @@ export function shortName(name: string) {
   const [first, second] = name.split(/\s+/).filter(Boolean);
   return second ? `${first} ${second[0]!.toUpperCase()}.` : (first ?? "");
 }
+
+/** "12 Nov, 4:20 PM" in venue time. */
+export function venueStamp(iso: string): string {
+  const d = new Date(iso);
+  const day = new Intl.DateTimeFormat("en-GB", { timeZone: VENUE_TZ, day: "numeric", month: "short" }).format(d);
+  return `${day}, ${clock12(iso)}`;
+}

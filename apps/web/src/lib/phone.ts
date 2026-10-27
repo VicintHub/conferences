@@ -25,3 +25,16 @@ export function formatPhone(e164: string): string {
   const rest = e164.slice(c.dial.length + 1);
   return `+${c.dial} ${rest.replace(/^(\d{3})(\d{3})(\d+)$/, "$1 $2 $3")}`;
 }
+
+/**
+ * Free-text phone (as typed into a one-field form) → E.164. "0803 456 7821" and "234803…" are taken as Nigerian;
+ * anything starting with "+" is kept as given. Returns the cleaned input when it can't be made valid, so the caller can reject it.
+ */
+export function normalisePhone(raw: string): string {
+  const v = raw.trim();
+  const digits = v.replace(/\D/g, "");
+  if (v.startsWith("+")) return `+${digits}`;
+  if (digits.startsWith("234")) return `+${digits}`;
+  if (digits.startsWith("0")) return `+234${digits.slice(1)}`;
+  return digits ? `+234${digits}` : "";
+}
