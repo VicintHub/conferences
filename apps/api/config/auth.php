@@ -1,5 +1,7 @@
 <?php
 
+use App\Domain\Registration\Models\Attendee;
+use App\Domain\Staff\Models\StaffUser;
 use App\Models\User;
 
 return [
@@ -42,6 +44,16 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        // Token guards are tied to their own model, so an attendee's token never works on staff routes and the
+        // other way round (Sanctum checks the token's owner against the guard's provider).
+        'sanctum' => [
+            'driver' => 'sanctum',
+            'provider' => 'attendees',
+        ],
+        'staff' => [
+            'driver' => 'sanctum',
+            'provider' => 'staff_users',
+        ],
     ],
 
     /*
@@ -67,6 +79,14 @@ return [
             'model' => env('AUTH_MODEL', User::class),
         ],
 
+        'attendees' => [
+            'driver' => 'eloquent',
+            'model' => Attendee::class,
+        ],
+        'staff_users' => [
+            'driver' => 'eloquent',
+            'model' => StaffUser::class,
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',

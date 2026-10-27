@@ -1,5 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\ApprovalController;
+use App\Http\Controllers\Api\V1\Admin\BroadcastController;
+use App\Http\Controllers\Api\V1\Admin\MeController as AdminMeController;
+use App\Http\Controllers\Api\V1\Admin\OrderAdminController;
+use App\Http\Controllers\Api\V1\Admin\OverviewController;
+use App\Http\Controllers\Api\V1\Admin\PublicityAdminController;
+use App\Http\Controllers\Api\V1\Admin\RegistrantController;
+use App\Http\Controllers\Api\V1\Admin\SettingsController;
+use App\Http\Controllers\Api\V1\Admin\StaffAdminController;
+use App\Http\Controllers\Api\V1\Admin\StaffAuthController;
+use App\Http\Controllers\Api\V1\Admin\TeamAdminController;
+use App\Http\Controllers\Api\V1\Admin\TestimonyModerationController;
 use App\Http\Controllers\Api\V1\ApplicationController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CapacityController;
@@ -82,5 +94,62 @@ Route::prefix('v1')->group(function () {
         Route::get('/travel', TravelController::class);
         Route::get('/survey', [SurveyController::class, 'show']);
         Route::post('/survey', [SurveyController::class, 'store']);
+    });
+    // Admin console. Staff have their own sign-in and token guard; each area is limited by role.
+    Route::prefix('admin')->group(function () {
+        Route::post('/auth/otp', [StaffAuthController::class, 'otp'])->middleware('throttle:otp');
+        Route::post('/auth/verify', [StaffAuthController::class, 'verify'])->middleware('throttle:verify');
+        Route::post('/auth/verify-link', [StaffAuthController::class, 'verifyLink'])->middleware('throttle:verify');
+
+        Route::middleware(['auth:staff', 'staff'])->group(function () {
+            Route::get('/me', AdminMeController::class);
+            Route::post('/auth/logout', [StaffAuthController::class, 'logout']);
+            Route::get('/overview', OverviewController::class);
+
+            Route::middleware('staff:registrants')->group(function () {
+                Route::get('/registrants', [RegistrantController::class, 'index']);
+                Route::get('/registrants/export', [RegistrantController::class, 'export']);
+            });
+            Route::middleware('staff:approvals')->group(function () {
+                Route::get('/approvals', [ApprovalController::class, 'index']);
+                Route::get('/approvals/{key}', [ApprovalController::class, 'show']);
+                Route::post('/approvals/{key}', [ApprovalController::class, 'decide']);
+                Route::get('/applications/{application}/documents/{document}', [ApprovalController::class, 'document'])->whereNumber(['application', 'document']);
+            });
+            Route::middleware('staff:broadcasts')->group(function () {
+                Route::get('/broadcasts', [BroadcastController::class, 'index']);
+                Route::post('/broadcasts', [BroadcastController::class, 'store'])->middleware('throttle:20,1');
+                Route::post('/broadcasts/preview', [BroadcastController::class, 'preview']);
+                Route::post('/broadcasts/test', [BroadcastController::class, 'test'])->middleware('throttle:10,1');
+                Route::post('/broadcasts/{broadcast}/cancel', [BroadcastController::class, 'cancel'])->whereNumber('broadcast');
+            });
+            Route::middleware('staff:testimonies')->group(function () {
+                Route::get('/testimonies', [TestimonyModerationController::class, 'index']);
+                Route::post('/testimonies/{testimony}', [TestimonyModerationController::class, 'update'])->whereNumber('testimony');
+            });
+            Route::middleware('staff:publicity')->group(function () {
+                Route::get('/publicity', [PublicityAdminController::class, 'index']);
+                Route::post('/publicity', [PublicityAdminController::class, 'store'])->middleware('throttle:30,1');
+                Route::patch('/publicity/{item}', [PublicityAdminController::class, 'update'])->whereNumber('item');
+                Route::delete('/publicity/{item}', [PublicityAdminController::class, 'destroy'])->whereNumber('item');
+            });
+            Route::middleware('staff:settings')->group(function () {
+                Route::get('/settings', [SettingsController::class, 'show']);
+                Route::put('/settings/live', [SettingsController::class, 'updateLive']);
+                Route::post('/replays', [SettingsController::class, 'storeReplay']);
+                Route::patch('/replays/{replay}', [SettingsController::class, 'updateReplay'])->whereNumber('replay');
+                Route::delete('/replays/{replay}', [SettingsController::class, 'destroyReplay'])->whereNumber('replay');
+            });
+            Route::middleware('staff:staff')->group(function () {
+                Route::get('/staff', [StaffAdminController::class, 'index']);
+                Route::post('/staff', [StaffAdminController::class, 'store']);
+                Route::patch('/staff/{staff}', [StaffAdminController::class, 'update'])->whereNumber('staff');
+            });
+            Route::get('/teams', [TeamAdminController::class, 'index'])->middleware('staff:teams');
+            Route::middleware('staff:orders')->group(function () {
+                Route::get('/orders', [OrderAdminController::class, 'index']);
+                Route::patch('/orders/{code}', [OrderAdminController::class, 'update']);
+            });
+        });
     });
 });

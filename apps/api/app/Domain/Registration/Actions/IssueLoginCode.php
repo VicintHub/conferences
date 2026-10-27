@@ -37,7 +37,7 @@ class IssueLoginCode
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         $token = bin2hex(random_bytes(24));
 
-        OtpCode::where('email', $email)->whereNull('consumed_at')->update(['consumed_at' => now()]);
+        OtpCode::where('email', $email)->where('audience', 'attendee')->whereNull('consumed_at')->update(['consumed_at' => now()]);
         OtpCode::create([
             'email' => $email,
             'code_hash' => self::codeHash($email, $code),
