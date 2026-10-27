@@ -6,23 +6,25 @@ use App\Domain\Store\Models\Product;
 use Illuminate\Database\Seeder;
 
 /**
- * The six products from the design handoff. Images are the handoff's placeholder mockups (they carry third-party
- * branding and must be replaced before launch); prices and stock are placeholders too.
+ * The Revival (37th IMLC) merchandise. Photos are the committee's own mock-ups. The face cap has no photo yet
+ * (the shop shows a placeholder until one is uploaded) and stock levels are starting figures to be corrected.
  */
 class ShopSeeder extends Seeder
 {
+    public const SLUGS = ['revival-hoodie', 'revival-polo', 'revival-baseball-shirt', 'revival-t-shirt', 'revival-face-cap', 'ministers-journal'];
+
     public function run(): void
     {
-        $facts = [['k' => 'Pickup', 'v' => 'Merchandise desk, venue'], ['k' => 'Material', 'v' => 'Cotton blend'], ['k' => 'Returns', 'v' => 'Size swap at the desk']];
+        $facts = [['k' => 'Pickup', 'v' => 'Merchandise desk, venue'], ['k' => 'Design', 'v' => 'Revival · IMLC 37th'], ['k' => 'Returns', 'v' => 'Size swap at the desk']];
         $sizes = ['S', 'M', 'L', 'XL', 'XXL'];
-        $img = fn (string ...$names) => array_map(fn ($n) => "/images/merch/{$n}.png", $names);
+        $img = fn (string ...$names) => array_map(fn ($n) => "/images/merch/{$n}.jpg", $names);
 
         $products = [
-            ['executive-polo', '37th Edition Executive Polo', 'apparel', 1250000, 'New', $img('polo', 'tee-black', 'tee-green'), [['name' => 'Cobalt', 'hex' => '#003070'], ['name' => 'White', 'hex' => '#ffffff'], ['name' => 'Brick', 'hex' => '#8c1f1c']], $sizes],
-            ['hoodie-cap-set', 'Conference Hoodie + Cap set', 'apparel', 2500000, 'Bundle', $img('hoodie'), [['name' => 'Brick', 'hex' => '#8c1f1c']], $sizes],
-            ['conference-tee', 'Conference T-shirt', 'apparel', 800000, null, $img('tee-green'), [['name' => 'Green', 'hex' => '#2f7d4f']], $sizes],
-            ['media-team-tee', 'Media Team T-shirt', 'apparel', 800000, null, $img('tee-black'), [['name' => 'Black', 'hex' => '#16181d']], $sizes],
-            ['psalm-23-jersey', 'Psalm 23 Jersey', 'apparel', 1500000, null, $img('jersey'), [['name' => 'Black', 'hex' => '#16181d']], $sizes],
+            ['revival-hoodie', 'Revival Hoodie', 'apparel', 2000000, 'New', $img('revival-hoodie', 'revival-hoodie-alt'), [['name' => 'Black', 'hex' => '#16181d']], $sizes],
+            ['revival-polo', 'Revival Polo', 'apparel', 1300000, null, $img('revival-polo-white', 'revival-polo-navy'), [['name' => 'White', 'hex' => '#ffffff', 'image' => 0], ['name' => 'Navy', 'hex' => '#0b2a5b', 'image' => 1]], $sizes],
+            ['revival-baseball-shirt', 'Revival Baseball Shirt', 'apparel', 1600000, null, $img('revival-baseball'), [['name' => 'Cream', 'hex' => '#f3ead3']], $sizes],
+            ['revival-t-shirt', 'Revival T-shirt', 'apparel', 1300000, null, $img('revival-tee'), [['name' => 'Black wash', 'hex' => '#2a2c31']], $sizes],
+            ['revival-face-cap', 'Revival Face Cap', 'apparel', 800000, null, [], [], []],
             ['ministers-journal', 'Ministers Syllabus & Prophetic Journal', 'books', 600000, null, [], [], []],
         ];
 
@@ -33,6 +35,7 @@ class ShopSeeder extends Seeder
                 'description' => null, 'active' => true, 'sort' => $i,
             ]);
 
+            // Re-seeding refreshes variants and stock; orders keep their own snapshots, so nothing already sold changes.
             $product->variants()->delete();
             foreach ($productSizes ?: [null] as $size) {
                 foreach ($colors ?: [['name' => null]] as $color) {
@@ -40,5 +43,8 @@ class ShopSeeder extends Seeder
                 }
             }
         }
+
+        // Earlier placeholder products are retired rather than deleted, because past orders refer to them.
+        Product::whereNotIn('slug', self::SLUGS)->update(['active' => false]);
     }
 }

@@ -13,7 +13,8 @@ export type Variant = { id: number; size: string | null; color: string | null; s
 export type ProductDetail = ProductSummary & {
   description: string | null;
   images: string[];
-  colors: { name: string; hex: string }[];
+  /** `image` is the gallery picture that shows this colour (the polo's white and navy photos). */
+  colors: { name: string; hex: string; image?: number }[];
   sizes: string[];
   facts: { k: string; v: string }[];
   variants: Variant[];

@@ -73,7 +73,7 @@ export function Catalog({ list }: { list: ShopList | null }) {
             : visible.map((p) => (
                 <li key={p.slug}>
                   <Link href={`/shop/${p.slug}`} className="flex flex-col gap-2">
-                    <div className="relative aspect-square overflow-hidden rounded-2xl border border-ink-100 bg-white">
+                    <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-ink-100 bg-white">
                       <ProductImage src={p.image} name={p.name} sizes="45vw" />
                       {p.tag && <Tag tag={p.tag} />}
                       {!p.in_stock && <SoldOut />}
@@ -119,7 +119,7 @@ export function Catalog({ list }: { list: ShopList | null }) {
               : visible.map((p) => (
                   <li key={p.slug}>
                     <Link href={`/shop/${p.slug}`} className="flex flex-col gap-3.5">
-                      <div className="relative aspect-square overflow-hidden rounded-[20px] bg-white">
+                      <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] bg-white">
                         <ProductImage src={p.image} name={p.name} sizes="(min-width: 1280px) 300px, 28vw" />
                         {p.tag && <Tag tag={p.tag} />}
                         {!p.in_stock && <SoldOut />}
