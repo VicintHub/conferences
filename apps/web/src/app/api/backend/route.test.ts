@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { GET, PATCH, POST } from "./[...path]/route";
+import { DELETE, GET, PATCH, POST, PUT } from "./[...path]/route";
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
@@ -40,12 +40,45 @@ describe("backend proxy", () => {
     expect((await GET(req("GET", "registrations", "t"), ctx("registrations"))).status).toBe(404);
   });
 
+  it("lets guests read and submit testimonies, passing the query string and multipart body through", async () => {
+    const f = vi.fn().mockResolvedValue(json({ data: [] }));
+    vi.stubGlobal("fetch", f);
+    expect((await GET(req("GET", "testimonies?tag=Healing"), ctx("testimonies"))).status).toBe(200);
+    expect(f.mock.calls[0][0]).toMatch(/\/testimonies\?tag=Healing$/);
+    expect(f.mock.calls[0][1].headers.Authorization).toBeUndefined();
+
+    const form = new FormData();
+    form.set("type", "write");
+    const post = new NextRequest("http://localhost/api/backend/testimonies", { method: "POST", body: form });
+    expect((await POST(post, ctx("testimonies"))).status).toBe(200);
+    expect(f.mock.calls[1][1].headers["Content-Type"]).toMatch(/^multipart\/form-data; boundary=/);
+  });
+
+  it("requires a session for Amen, feedback and the survey", async () => {
+    const f = vi.fn().mockResolvedValue(json({ data: {} }));
+    vi.stubGlobal("fetch", f);
+    expect((await PUT(req("PUT", "testimonies/5/amen"), ctx("testimonies/5/amen"))).status).toBe(401);
+    expect((await DELETE(req("DELETE", "testimonies/5/amen"), ctx("testimonies/5/amen"))).status).toBe(401);
+    expect((await POST(req("POST", "sessions/3/feedback"), ctx("sessions/3/feedback"))).status).toBe(401);
+    expect((await GET(req("GET", "survey"), ctx("survey"))).status).toBe(401);
+    expect(f).not.toHaveBeenCalled();
+    expect((await PUT(req("PUT", "testimonies/5/amen", "t"), ctx("testimonies/5/amen"))).status).toBe(200);
+    expect((await GET(req("GET", "testimonies/abc/amen", "t"), ctx("testimonies/abc/amen"))).status).toBe(404);
+  });
+
+  it("does not drop a guest's cookie-less 401 handling (no cookie to delete)", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(json({ message: "no" }, 401)));
+    const res = await POST(req("POST", "testimonies"), ctx("testimonies"));
+    expect(res.status).toBe(401);
+    expect(res.headers.get("set-cookie")).toBeNull();
+  });
+
   it("forwards PATCH bodies", async () => {
     const f = vi.fn().mockResolvedValue(json({ data: { mode: "online" } }));
     vi.stubGlobal("fetch", f);
     const res = await PATCH(req("PATCH", "me/registration", "t", { mode: "online" }), ctx("me/registration"));
     expect(res.status).toBe(200);
-    expect(JSON.parse(f.mock.calls[0][1].body)).toEqual({ mode: "online" });
+    expect(JSON.parse(new TextDecoder().decode(f.mock.calls[0][1].body))).toEqual({ mode: "online" });
   });
 
   it("ends the session when the API rejects the token", async () => {

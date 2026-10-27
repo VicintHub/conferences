@@ -7,6 +7,8 @@ const oswald = Oswald({ subsets: ["latin"], weight: ["400", "500", "600", "700"]
 const barlow = Barlow({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-barlow", display: "swap" });
 
 export const metadata: Metadata = {
+  // Absolute base for share-preview images (Open Graph) on item pages.
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: "Jan. Conf 2027 — 37th IMLC & IYLC",
   description: "International Ministers & Leadership Conference, 19–24 January 2027, Ibadan, Nigeria.",
 };

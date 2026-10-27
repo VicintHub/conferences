@@ -21,9 +21,11 @@ export async function apiFetch<T>(path: string, init: RequestInit & { base?: str
   const { base = API_URL, headers, ...rest } = init;
   let res: Response;
   try {
+    // FormData must go out without a Content-Type so the browser can add the multipart boundary.
+    const isForm = typeof FormData !== "undefined" && rest.body instanceof FormData;
     res = await fetch(`${base}${path}`, {
       ...rest,
-      headers: { Accept: "application/json", "Content-Type": "application/json", ...headers },
+      headers: { Accept: "application/json", ...(isForm ? {} : { "Content-Type": "application/json" }), ...headers },
     });
   } catch {
     throw new ApiError("Can't reach the server. Check your connection and try again.", 0, "network");

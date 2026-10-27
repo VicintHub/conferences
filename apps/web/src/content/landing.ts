@@ -8,7 +8,7 @@ export const PARTNER_HREF = "mailto:mivmandate2010@gmail.com?subject=Partnering%
 
 export const navLinks = [
   { label: "About", href: "#about" },
-  { label: "Speakers", href: "#speakers" },
+  { label: "Speakers", href: "/speakers" },
   { label: "Schedule", href: "#schedule" },
   { label: "Accommodation", href: "#accommodation" },
   { label: "Shop", href: "#shop" },
