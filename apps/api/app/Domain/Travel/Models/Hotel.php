@@ -10,6 +10,6 @@ class Hotel extends Model
 
     protected function casts(): array
     {
-        return ['amenities' => 'array', 'conference_rate' => 'boolean', 'active' => 'boolean', 'distance_km' => 'float'];
+        return ['amenities' => 'array', 'conference_rate' => 'boolean', 'active' => 'boolean', 'distance_km' => 'float', 'lat' => 'float', 'lng' => 'float'];
     }
 }

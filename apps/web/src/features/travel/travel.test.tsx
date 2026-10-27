@@ -18,6 +18,8 @@ const hotel = (slug: string, name: string, kobo: number, km: number, partner: bo
   slug,
   name,
   area: "Ojoo",
+  lat: 7.45,
+  lng: 3.91,
   price_kobo: kobo,
   distance_km: km,
   drive_minutes: 3,
@@ -31,7 +33,7 @@ const hotel = (slug: string, name: string, kobo: number, km: number, partner: bo
   ...over,
 });
 const data: TravelData = {
-  venue: { name: "Leadership & Missions Conference Centre", address: "Olororo, Ojoo, Ibadan", lat: 7.4356, lng: 3.9419 },
+  venue: { name: "Leadership & Missions Conference Centre", address: "Olororo, Ojoo, Ibadan", lat: 7.461863, lng: 3.912484 },
   hotels: [
     hotel("olororo", "Olororo Guest Lodge", 1800000, 0.8, true),
     hotel("ojoo", "Ojoo Grand Hotel", 2500000, 2.4, true),
@@ -98,7 +100,7 @@ describe("Travel (phone)", () => {
     expect(screen.getByText("Leadership & Missions Conference Centre")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Directions" })).toHaveAttribute(
       "href",
-      "https://www.google.com/maps/dir/?api=1&destination=7.4356,3.9419",
+      "https://www.google.com/maps/dir/?api=1&destination=7.461863,3.912484",
     );
     expect(screen.getByText("Every 20 min · 6:30 AM – 10 PM")).toBeInTheDocument();
     expect(screen.getByText("Iwo Road interchange")).toBeInTheDocument();
@@ -141,7 +143,7 @@ describe("HotelDetail", () => {
     render(<HotelDetail hotel={data.hotels[0]!} backHref="/app/hotels" />);
 
     expect(screen.getByRole("heading", { name: "Olororo Guest Lodge" })).toBeInTheDocument();
-    expect(screen.getByText("0.8 km · 3 min drive to venue")).toBeInTheDocument();
+    expect(screen.getByText("0.8 km from the venue · 3 min drive")).toBeInTheDocument();
     expect(screen.getByText("₦18,000")).toBeInTheDocument();
     expect(within(screen.getByRole("list", { name: "Amenities" })).getAllByRole("listitem")).toHaveLength(4);
     expect(screen.getByRole("link", { name: "Call" })).toHaveAttribute("href", "tel:+2348080854818");
@@ -176,6 +178,47 @@ describe("HotelPage", () => {
     first.unmount();
     render(wrap(<HotelPage slug="nope" />));
     expect(await screen.findByText("We can’t find that hotel")).toBeInTheDocument();
+  });
+});
+
+describe("hotels without rates yet", () => {
+  const unpriced = (slug: string, name: string, km: number) =>
+    hotel(slug, name, 0, km, false, { price_kobo: null, drive_minutes: null, rate_code: null, phone: null, whatsapp: null, amenities: [] });
+
+  it("says to ask for the rate and drops the budget filters that can't apply", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        json({ data: { ...data, hotels: [unpriced("josiah", "Josiah Inn", 0.4), unpriced("classicus", "Classicus Inn", 0.9)] } }),
+      ),
+    );
+    render(wrap(<Travel />));
+
+    const card = await screen.findByRole("link", { name: /Josiah Inn/ });
+    expect(within(card).getByText("Ask for rate")).toBeInTheDocument();
+    expect(within(card).getByText("0.4 km")).toBeInTheDocument();
+    expect(within(card).queryByText("per night")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Under ₦20k" })).not.toBeInTheDocument();
+  });
+
+  it("never counts an unknown rate as cheap", () => {
+    const h = unpriced("a", "A", 1);
+    expect(inBudget(h, "under20")).toBe(false);
+    expect(inBudget(h, "mid")).toBe(false);
+    expect(inBudget(h, "all")).toBe(true);
+  });
+
+  it("offers directions to the hotel, with no invented price, contact or amenities", () => {
+    render(<HotelDetail hotel={unpriced("josiah", "Josiah Inn", 0.4)} />);
+    expect(screen.getByText("Ask for rate")).toBeInTheDocument();
+    expect(screen.getByText("0.4 km from the venue")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Directions" })).toHaveAttribute(
+      "href",
+      "https://www.google.com/maps/dir/?api=1&destination=7.45,3.91",
+    );
+    expect(screen.queryByRole("link", { name: "Call" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Book on WhatsApp" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Quote this code")).not.toBeInTheDocument();
   });
 });
 

@@ -5,29 +5,37 @@ namespace Database\Seeders;
 use App\Domain\Travel\Models\Hotel;
 use App\Domain\Travel\Models\Shuttle;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 /**
- * Placeholder hotels and shuttles from the design handoff. Contact numbers are the conference office until the
- * committee enters each hotel's own, and prices and distances should be confirmed before launch.
+ * Hotels closest to the venue, taken from Google Maps around the church's pin (straight-line distance).
+ * Rates, phone numbers, amenities and any conference-rate deal are not public: the committee adds them
+ * as each hotel confirms, and the app says "ask for the rate" until then. Shuttles are placeholders from the design.
  */
 class TravelSeeder extends Seeder
 {
+    /** @var list<array{string, string, float, float}> name, area, lat, lng */
+    private const HOTELS = [
+        ['Josiah Inn', 'NISER, Ojoo', 7.459812, 3.909894],
+        ['Classicus Inn', 'Ojoo, Ibadan', 7.454809, 3.908133],
+        ['Dopad Hills Hotel and Suites', 'Ojoo, Ibadan', 7.453246, 3.925120],
+        ['UI Hotels', 'University of Ibadan area', 7.448563, 3.900813],
+        ['Ayotoz Hotel', 'Ibadan', 7.441481, 3.907441],
+        ['Dominion City Guest House', 'Ibadan', 7.444392, 3.926548],
+        ['Top Blue Roof Inn', 'Ibadan', 7.480910, 3.905250],
+        ['Bible Guest House', 'Ibadan', 7.432117, 3.904411],
+    ];
+
     public function run(): void
     {
-        $office = '+2348080854818';
-        $amenities = ['Breakfast', 'Wi-Fi', 'Generator 24h', 'Shuttle'];
+        $venue = [(float) config('conference.venue_lat'), (float) config('conference.venue_lng')];
 
         Hotel::query()->delete();
-        foreach ([
-            ['olororo', 'Olororo Guest Lodge', 'Olororo, Ojoo', 1800000, 0.8, 3, true, '/images/photos/lp-hotel.webp', 'Shuttle to the venue every 30 minutes from 7 AM.'],
-            ['ojoo', 'Ojoo Grand Hotel', 'Ojoo roundabout', 2500000, 2.4, 8, true, null, 'Shuttle to the venue every 30 minutes from 7 AM.'],
-            ['moniya', 'Moniya Suites', 'Oyo Road, Moniya', 1500000, 5.1, 14, false, null, null],
-            ['bodija', 'Bodija Executive Inn', 'Bodija, Ibadan', 3500000, 9.6, 25, false, null, null],
-        ] as $i => [$slug, $name, $area, $price, $km, $mins, $partner, $image, $shuttle]) {
+        $rows = collect(self::HOTELS)->map(fn ($h) => [...$h, self::km($venue, [$h[2], $h[3]])])->sortBy(4)->values();
+        foreach ($rows as $i => [$name, $area, $lat, $lng, $km]) {
             Hotel::create([
-                'slug' => $slug, 'name' => $name, 'area' => $area, 'price_kobo' => $price, 'distance_km' => $km, 'drive_minutes' => $mins,
-                'conference_rate' => $partner, 'image' => $image, 'amenities' => $amenities, 'shuttle_note' => $shuttle,
-                'phone' => $office, 'whatsapp' => $office, 'sort' => $i,
+                'slug' => Str::slug($name), 'name' => $name, 'area' => $area, 'lat' => $lat, 'lng' => $lng,
+                'distance_km' => round($km, 1), 'amenities' => [], 'conference_rate' => false, 'sort' => $i,
             ]);
         }
 
@@ -39,5 +47,14 @@ class TravelSeeder extends Seeder
         ] as $i => [$name, $schedule]) {
             Shuttle::create(['name' => $name, 'schedule' => $schedule, 'sort' => $i]);
         }
+    }
+
+    /** Great-circle distance in kilometres. */
+    public static function km(array $a, array $b): float
+    {
+        [$la1, $lo1, $la2, $lo2] = array_map('deg2rad', [$a[0], $a[1], $b[0], $b[1]]);
+        $h = sin(($la2 - $la1) / 2) ** 2 + cos($la1) * cos($la2) * sin(($lo2 - $lo1) / 2) ** 2;
+
+        return 12742 * asin(sqrt($h));
     }
 }
