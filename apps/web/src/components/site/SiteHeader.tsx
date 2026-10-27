@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui";
 import { REGISTER_HREF } from "@/content/landing";
 import { cn } from "@/lib/cn";
+import { BagPill } from "./BagPill";
 
 const links = [
   { label: "Home", href: "/" },
@@ -13,7 +14,7 @@ const links = [
 ] as const;
 
 /** Solid cobalt top bar for the inner public pages (desktop). Phones get each page's own compact header. */
-export function SiteHeader({ active }: { active: (typeof links)[number]["label"] }) {
+export function SiteHeader({ active, bag }: { active: (typeof links)[number]["label"]; bag?: boolean }) {
   return (
     <header className="hidden items-center justify-between bg-cobalt-950 px-14 py-5 text-cream-50 md:flex">
       <Link href="/" className="flex items-center gap-3">
@@ -36,9 +37,13 @@ export function SiteHeader({ active }: { active: (typeof links)[number]["label"]
           </Link>
         ))}
       </nav>
-      <Button href={REGISTER_HREF} variant="accent" display>
-        Register now
-      </Button>
+      {bag ? (
+        <BagPill />
+      ) : (
+        <Button href={REGISTER_HREF} variant="accent" display>
+          Register now
+        </Button>
+      )}
     </header>
   );
 }

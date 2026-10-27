@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Badge, QR } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { dayParts, shortName, venueDate } from "@/lib/time";
+import { PickupList } from "@/features/shop/PickupList";
 import { useMe } from "./queries";
 import { categoryLabel, type Me } from "./types";
 import { ErrorNote, SkeletonBlock } from "./ui";
@@ -130,5 +131,10 @@ export function Pass() {
       </div>
     );
   }
-  return me.badge ? <ActiveBadge me={me} now={now} /> : <ClaimTicket me={me} />;
+  return (
+    <>
+      {me.badge ? <ActiveBadge me={me} now={now} /> : <ClaimTicket me={me} />}
+      <PickupList />
+    </>
+  );
 }

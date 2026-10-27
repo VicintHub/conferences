@@ -11,7 +11,7 @@ export const navLinks = [
   { label: "Speakers", href: "/speakers" },
   { label: "Schedule", href: "#schedule" },
   { label: "Accommodation", href: "#accommodation" },
-  { label: "Shop", href: "#shop" },
+  { label: "Shop", href: "/shop" },
 ] as const;
 
 export const why = [
@@ -74,10 +74,10 @@ export const regOptions = [
 
 // Placeholder mockups carry third-party branding; replace before launch (see docs/design/README.md).
 export const merch = [
-  { t: "Executive Polo", p: "₦12,500", src: "/images/merch/polo.png" },
-  { t: "Hoodie + Cap set", p: "₦25,000", src: "/images/merch/hoodie.png" },
-  { t: "Conference T-shirt", p: "₦8,000", src: "/images/merch/tee-green.png" },
-  { t: "Psalm 23 Jersey", p: "₦15,000", src: "/images/merch/jersey.png" },
+  { t: "Executive Polo", p: "₦12,500", src: "/images/merch/polo.png", href: "/shop/executive-polo" },
+  { t: "Hoodie + Cap set", p: "₦25,000", src: "/images/merch/hoodie.png", href: "/shop/hoodie-cap-set" },
+  { t: "Conference T-shirt", p: "₦8,000", src: "/images/merch/tee-green.png", href: "/shop/conference-tee" },
+  { t: "Psalm 23 Jersey", p: "₦15,000", src: "/images/merch/jersey.png", href: "/shop/psalm-23-jersey" },
 ];
 
 export const galleryPhotos = ["lp-hero", "lp-about-1", "lp-about-2", "lp-hotel", "lp-reg", "lp-hero-m", "lp-host-1", "lp-host-2"].map(
