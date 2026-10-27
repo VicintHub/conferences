@@ -40,6 +40,11 @@ describe("admin proxy", () => {
       ["DELETE", "publicity/5"],
       ["PUT", "settings/live"],
       ["GET", "applications/3/documents/4"],
+      ["GET", "desk/lookup"],
+      ["POST", "desk/print"],
+      ["POST", "scans/batch"],
+      ["GET", "scans/roster"],
+      ["GET", "checkin"],
     ] as const) {
       expect((await handlers[method](req(method, path), ctx(path))).status, `${method} ${path}`).toBe(401);
     }
@@ -56,6 +61,9 @@ describe("admin proxy", () => {
       ["POST", "orders/MV-1"],
       ["GET", "../me"],
       ["POST", "teams"],
+      ["GET", "scans/batch"],
+      ["POST", "scans/roster"],
+      ["DELETE", "desk/print"],
     ] as const) {
       expect((await handlers[method](req(method, path, "t"), ctx(path))).status, `${method} ${path}`).toBe(404);
     }

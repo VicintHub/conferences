@@ -29,8 +29,8 @@ export function AdminLogin() {
   });
   const verify = useMutation({
     mutationFn: (code: string) => verifyStaffCode(address, code),
-    // Only ever go to a path inside the console.
-    onSuccess: () => router.push(next && /^\/admin(\/|$)/.test(next) ? next : "/admin"),
+    // Only ever go to a path inside the staff tools.
+    onSuccess: () => router.push(next && /^\/(admin|desk|scan)(\/|$)/.test(next) ? next : "/admin"),
     onError: (e: ApiError) => setCodeError(e.message),
   });
 

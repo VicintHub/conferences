@@ -64,6 +64,8 @@ class RecordScan
             $v['ok'] = true;
             $overridden = true;
             $v['detail'] = trim("Override ({$v['reason']}). ".($v['detail'] ?? ''));
+            // A refusal carries no label of its own ("Gate", "Lunch"), but the phone shows one for an accepted scan.
+            $v['label'] ??= Scan::CHECKPOINTS[$checkpoint];
         }
 
         if ($v['ok'] && isset($v['order'])) {

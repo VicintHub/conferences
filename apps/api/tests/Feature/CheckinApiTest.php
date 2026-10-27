@@ -103,7 +103,7 @@ class CheckinApiTest extends TestCase
         $this->assertSame('refused', $desk['result'], 'a desk role asking for an override is ignored');
 
         $sup = $this->scan($online->registration->claim_code, over: ['override' => true], role: StaffRole::Supervisor);
-        $this->assertSame(['ok', true], [$sup['result'], $sup['overridden']]);
+        $this->assertSame(['ok', true, 'Gate'], [$sup['result'], $sup['overridden'], $sup['label']]);
         $this->assertStringContainsString('Registered as online', $sup['detail']);
         $this->assertSame(1, Scan::where('overridden', true)->count());
 

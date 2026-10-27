@@ -1,10 +1,23 @@
-export type AreaKey = "registrants" | "approvals" | "teams" | "orders" | "broadcasts" | "testimonies" | "publicity" | "settings" | "staff";
+export type AreaKey =
+  | "registrants"
+  | "approvals"
+  | "teams"
+  | "orders"
+  | "broadcasts"
+  | "testimonies"
+  | "publicity"
+  | "settings"
+  | "staff"
+  | "desk"
+  | "scan"
+  | "checkin"
+  | "override";
 
 export type Staff = {
   id: number;
   name: string;
   email: string;
-  role: "admin" | "registration" | "content" | "moderator";
+  role: "admin" | "registration" | "content" | "moderator" | "desk" | "supervisor";
   role_label: string;
   title: string;
   active: boolean;

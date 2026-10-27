@@ -22,7 +22,7 @@ export const NAV: NavItem[] = [
   { label: "Testimonies", href: "/admin/testimonies", area: "testimonies", badge: "testimonies" },
   { label: "Publicity kit", href: "/admin/publicity", area: "publicity" },
   { label: "Store orders", href: "/admin/orders", area: "orders" },
-  { label: "Check-in & meals", href: "/admin/checkin", area: "registrants" },
+  { label: "Check-in & meals", href: "/admin/checkin", area: "checkin" },
   { label: "Settings", href: "/admin/settings", area: "settings" },
 ];
 
@@ -97,6 +97,21 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        {(staff.areas.includes("desk") || staff.areas.includes("scan")) && (
+          <div className="flex flex-col gap-1 border-t border-white/10 pt-4">
+            <p className="px-4 pb-1 text-xs font-semibold uppercase tracking-[0.08em] text-cobalt-300">Door tools</p>
+            {staff.areas.includes("desk") && (
+              <Link href="/desk" className="rounded-xl px-4 py-3 text-[15px] font-semibold hover:bg-white/5">
+                Print desk
+              </Link>
+            )}
+            {staff.areas.includes("scan") && (
+              <Link href="/scan" className="rounded-xl px-4 py-3 text-[15px] font-semibold hover:bg-white/5">
+                Scanner
+              </Link>
+            )}
+          </div>
+        )}
         <div className="flex items-center gap-3 rounded-2xl bg-white/5 p-3 lg:mt-auto">
           <span className="flex size-10 flex-none items-center justify-center rounded-full bg-cobalt-600 font-display text-sm font-bold text-white">
             {initials(staff.name)}
