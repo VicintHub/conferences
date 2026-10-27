@@ -17,7 +17,7 @@ import { ImportSheet } from "./ImportSheet";
 import { ManageSheet } from "./ManageSheet";
 import { MemberSheet } from "./MemberForm";
 import { MemberAvatar, memberSubtitle, modeName, StatusPill } from "./parts";
-import { shareLink } from "./share";
+import { shareLink } from "@/lib/share";
 import { categoryName, type Team as TeamT, type TeamMember } from "./types";
 
 type Filter = "all" | "confirmed" | "invited";

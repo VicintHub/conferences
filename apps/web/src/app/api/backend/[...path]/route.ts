@@ -34,6 +34,12 @@ const ALLOWED: [method: string, pattern: RegExp, auth: boolean][] = [
   ["GET", /^me\/applications$/, true],
   ["POST", /^me\/applications$/, true],
   ["POST", /^me\/applications\/\d+\/documents$/, true],
+  // Live and travel are for signed-in attendees.
+  ["GET", /^live$/, true],
+  ["POST", /^live\/heartbeat$/, true],
+  ["POST", /^sessions\/\d+\/remind$/, true],
+  ["DELETE", /^sessions\/\d+\/remind$/, true],
+  ["GET", /^travel$/, true],
   ["GET", /^publicity$/, false],
   ["GET", /^publicity\/[a-z0-9-]+$/, false],
   ["POST", /^publicity\/[a-z0-9-]+\/track$/, false],

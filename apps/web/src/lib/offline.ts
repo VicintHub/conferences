@@ -33,7 +33,7 @@ export async function saveSnapshot<T>(name: string, data: T) {
 
 /** Called on sign-out so a shared device doesn't keep the previous person's ticket. */
 export async function clearOfflineData() {
-  await Promise.all(["me", "programme"].map((n) => del(key(n)).catch(() => {})));
+  await Promise.all(["me", "programme", "travel"].map((n) => del(key(n)).catch(() => {})));
   try {
     localStorage.removeItem("jc27.ticket");
   } catch {

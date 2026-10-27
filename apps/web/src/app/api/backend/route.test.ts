@@ -140,4 +140,22 @@ describe("backend proxy", () => {
     expect((await POST(req("POST", "me/teams/minister/members/import", "t"), ctx("me/teams/minister/members/import"))).status).toBe(404);
     expect((await GET(req("GET", "me/applications/3", "t"), ctx("me/applications/3"))).status).toBe(404);
   });
+
+  it("keeps the live stream and travel details for signed-in attendees", async () => {
+    const f = vi.fn().mockResolvedValue(json({ data: {} }));
+    vi.stubGlobal("fetch", f);
+    for (const [method, path] of [
+      ["GET", "live"],
+      ["POST", "live/heartbeat"],
+      ["POST", "sessions/4/remind"],
+      ["DELETE", "sessions/4/remind"],
+      ["GET", "travel"],
+    ] as const) {
+      expect((await handlers[method](req(method, path), ctx(path))).status, `${method} ${path} without a cookie`).toBe(401);
+    }
+    expect(f).not.toHaveBeenCalled();
+    expect((await GET(req("GET", "live", "1|abc"), ctx("live"))).status).toBe(200);
+    expect(f.mock.calls[0][1].headers.Authorization).toBe("Bearer 1|abc");
+    expect((await PUT(req("PUT", "live", "1|abc"), ctx("live"))).status).toBe(404);
+  });
 });
